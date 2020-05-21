@@ -1,4 +1,4 @@
-#usr/bin/python3
+# usr/bin/python3
 
 ####
 # TODO:
@@ -29,10 +29,9 @@ from dataloader import BidirectionalOneShotIterator
 from dataloader import Rule
 import dataloader as dt
 
-
-#LOSS_TMP = 'custom'
+# LOSS_TMP = 'custom'
 OPT_STOPPING = False
-STEPS_BEFORE_VALID = 0   # number of steps to do before running on validation set
+STEPS_BEFORE_VALID = 0  # number of steps to do before running on validation set
 RULE_BATCH_SIZE_INV = 1000
 RULE_BATCH_SIZE_IMPL = 1000
 RULE_BATCH_SIZE_EQ = -1
@@ -64,31 +63,32 @@ TEST_SYMMETRY = False
 MODEL_INJECTION_FNAME = 'models/TransRotatE_FB15k_symmetry4'
 MODEL_NO_INJECTION_FNAME = 'models/TransRotatE_FB15k_noInjection'
 
-#print('positive and negative losses negated (similar to rotate example) in quate loss')
-#print('Inverse loss = premise - concl (reverse)')
+
+# print('positive and negative losses negated (similar to rotate example) in quate loss')
+# print('Inverse loss = premise - concl (reverse)')
 def parse_args(args=None):
     parser = argparse.ArgumentParser(
         description='Training and Testing Knowledge Graph Embedding Models',
         usage='train.py [<args>] [-h | --help]'
     )
 
-    parser.add_argument('--project', action = 'store_true')
-    parser.add_argument('--ruge', action = 'store_true', help = 'Use RUGE rules')
-    parser.add_argument('--inject', action = 'store_true', help = 'Old inject option') #TODO: REMOVE?
-    parser.add_argument('--inject_mine', action ='store_true', help = 'Inject rules using my model')
-    parser.add_argument('--ruge-inject', action = 'store_true', help = 'Inject rules using RUGE model')
-    parser.add_argument('--adversarial', action = 'store_true', help = 'Use adversarial rule injection')
+    parser.add_argument('--project', action='store_true')
+    parser.add_argument('--ruge', action='store_true', help='Use RUGE rules')
+    parser.add_argument('--inject', action='store_true', help='Old inject option')  # TODO: REMOVE?
+    parser.add_argument('--inject_mine', action='store_true', help='Inject rules using my model')
+    parser.add_argument('--ruge-inject', action='store_true', help='Inject rules using RUGE model')
+    parser.add_argument('--adversarial', action='store_true', help='Use adversarial rule injection')
     parser.add_argument('--cuda', action='store_true', help='use GPU')
     parser.add_argument('--parallel', action='store_true', help='parallelize over several gpus')
-    parser.add_argument('--loss', default = 'uncertain_loss')
-    #parser.add_argument('--rules', action = 'store_true')
-    parser.add_argument('--eq', action = 'store_true', help = 'use equality rules in training')
-    parser.add_argument('--inv', action = 'store_true', help = 'use inverse rules in training')
-    parser.add_argument('--impl', action = 'store_true', help = 'use implication rules in training')
-    parser.add_argument('--sym', action = 'store_true', help = 'use symmetry rules in training')
+    parser.add_argument('--loss', default='uncertain_loss')
+    # parser.add_argument('--rules', action = 'store_true')
+    parser.add_argument('--eq', action='store_true', help='use equality rules in training')
+    parser.add_argument('--inv', action='store_true', help='use inverse rules in training')
+    parser.add_argument('--impl', action='store_true', help='use implication rules in training')
+    parser.add_argument('--sym', action='store_true', help='use symmetry rules in training')
 
-    parser.add_argument('--do_experiment', action = 'store_true', help = 'Use updated loss function')
-    parser.add_argument('--do_grid', action = 'store_true', help = 'Grid testing')
+    parser.add_argument('--do_experiment', action='store_true', help='Use updated loss function')
+    parser.add_argument('--do_grid', action='store_true', help='Grid testing')
     parser.add_argument('--do_train', action='store_true')
     parser.add_argument('--do_valid', action='store_true')
     parser.add_argument('--do_test', action='store_true')
@@ -110,7 +110,7 @@ def parse_args(args=None):
     parser.add_argument('-a', '--adversarial_temperature', default=1.0, type=float)
     parser.add_argument('-b', '--batch_size', default=1024, type=int)
     parser.add_argument('-r', '--regularization', default=0.0, type=float)
-    parser.add_argument('--l2-r', default = 0.0, type = float)
+    parser.add_argument('--l2-r', default=0.0, type=float)
     parser.add_argument('--test_batch_size', default=4, type=int, help='valid/test batch size')
     parser.add_argument('--uni_weight', action='store_true',
                         help='Otherwise use subsampling weighting like in word2vec')
@@ -137,11 +137,13 @@ def parse_args(args=None):
 
     return args
 
+
 def cycle(iterable):
     ''' helper for rule iterators '''
     while True:
         for x in iterable:
             yield x
+
 
 def override_config(args):
     '''
@@ -160,6 +162,7 @@ def override_config(args):
     args.hidden_dim = argparse_dict['hidden_dim']
     args.test_batch_size = argparse_dict['test_batch_size']
 
+
 def save_model(model, optimizer, save_variable_list, args, idx):
     '''
     Save the parameters of the model and the optimizer,
@@ -167,19 +170,19 @@ def save_model(model, optimizer, save_variable_list, args, idx):
     '''
 
     argparse_dict = vars(args)
-    with open(os.path.join(args.save_path, 'config'+idx+'.json'), 'w') as fjson:
+    with open(os.path.join(args.save_path, 'config' + idx + '.json'), 'w') as fjson:
         json.dump(argparse_dict, fjson)
 
     torch.save({
         **save_variable_list,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict()},
-        os.path.join(args.save_path, 'checkpoint'+idx)
+        os.path.join(args.save_path, 'checkpoint' + idx)
     )
 
     entity_embedding = model.entity_embedding.detach().cpu().numpy()
     np.save(
-        os.path.join(args.save_path, 'entity_embedding'+idx),
+        os.path.join(args.save_path, 'entity_embedding' + idx),
         entity_embedding
     )
 
@@ -204,10 +207,9 @@ def save_model(model, optimizer, save_variable_list, args, idx):
     if args.model == 'sTransRotatE':
         rotator_head = model.rotator_head.detach().cpu().numpy()
         np.save(
-            os.path.join(args.save_path, 'relation_embedding_head'+idx),
+            os.path.join(args.save_path, 'relation_embedding_head' + idx),
             rotator_head
         )
-
 
 
 def read_triple(file_path, entity2id, relation2id):
@@ -221,15 +223,16 @@ def read_triple(file_path, entity2id, relation2id):
             triples.append((entity2id[h], relation2id[r], entity2id[t]))
     return triples
 
+
 def set_logger(args):
     '''
     Write logs to checkpoint and console
     '''
 
     if args.do_train:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_'+args.model+'.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_' + args.model + '.log')
     else:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_'+args.model+'.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_' + args.model + '.log')
 
     logging.basicConfig(
         format='%(asctime)s %(levelname)-8s %(message)s',
@@ -244,6 +247,7 @@ def set_logger(args):
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
+
 def log_metrics(mode, step, metrics):
     '''
     Print the evaluation logs
@@ -251,53 +255,57 @@ def log_metrics(mode, step, metrics):
     for metric in metrics:
         logging.info('%s %s at step %d: %f' % (mode, metric, step, metrics[metric]))
 
-def setup_rule_loader(n_batches, batch_size, dir_path, filename, device, rule_batchsize  = 0):
+
+def setup_rule_loader(n_batches, batch_size, dir_path, filename, device, rule_batchsize=0):
     rules = np.loadtxt(os.path.join(dir_path, filename))
     rules = torch.LongTensor(rules).to(device)
-    #batch_size = rules.shape[0]//n_batches
+    # batch_size = rules.shape[0]//n_batches
 
-    batch_size = rules.shape[0]//n_batches
+    batch_size = rules.shape[0] // n_batches
     if batch_size == 0:
-        batch_size = rules.shape[0]     # reset batch to include all rules if too few rules
+        batch_size = rules.shape[0]  # reset batch to include all rules if too few rules
     batch_size = rule_batchsize
     if batch_size == -1 or rule_batchsize == -1:
-        batch_size = rules.shape[0]//n_batches
+        batch_size = rules.shape[0] // n_batches
         if batch_size == 0:
-            batch_size = rules.shape[0]     # reset batch to include all rules if too few rules
+            batch_size = rules.shape[0]  # reset batch to include all rules if too few rules
     '''    batch_size = min(batch_size, rules.shape[0])
         if USE_ALL_RULES: batch_size = rules.shape[0]
     '''
-    #batch_size = 500
-    dl = DataLoader(rules, batch_size = int(batch_size), shuffle = True, drop_last = False)
+    # batch_size = 500
+    dl = DataLoader(rules, batch_size=int(batch_size), shuffle=True, drop_last=False)
     return rules.shape[0], batch_size, iter(cycle(dl))
 
 
-
-def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model, train_iterator, rule_iterators, args, idx = ''):
+def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model, train_iterator, rule_iterators, args,
+                idx=''):
     if args.warm_up_steps:
         warm_up_steps = args.warm_up_steps
     else:
-        warm_up_steps = args.max_steps // 2   # 2
+        warm_up_steps = args.max_steps // 2  # 2
 
     current_learning_rate = args.learning_rate
-    if args.opt == 'adam': optim_fnc = torch.optim.Adam
-    elif args.opt == 'ada': optim_fnc = torch.optim.Adagrad
-    else: raise ValueError('optimizer %s not supported '% args.opt)
+    if args.opt == 'adam':
+        optim_fnc = torch.optim.Adam
+    elif args.opt == 'ada':
+        optim_fnc = torch.optim.Adagrad
+    else:
+        raise ValueError(f'optimizer {args.opt} not supported ')
 
     # NOTE: added weight decay (L2 regularization) to optim function - test on TransRotatE!
     optimizer = optim_fnc(
-            filter(lambda p: p.requires_grad, kge_model.parameters()),
-            lr = current_learning_rate)
+        filter(lambda p: p.requires_grad, kge_model.parameters()),
+        lr=current_learning_rate)
 
     if args.adversarial:
         adv_optimizer = optim_fnc(
-                filter(lambda p: p.requires_grad, adv_model.parameters()),
-                lr = 1*current_learning_rate)
+            filter(lambda p: p.requires_grad, adv_model.parameters()),
+            lr=1 * current_learning_rate)
 
     training_logs = []
     if args.init_checkpoint:
         # Restore model from checkpoint directory
-        logging.info('Loading checkpoint %s...' % args.init_checkpoint)
+        logging.info(f'Loading checkpoint {args.init_checkpoint}...')
         checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint'))
         init_step = checkpoint['step']
         kge_model.load_state_dict(checkpoint['model_state_dict'])
@@ -305,8 +313,7 @@ def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model
         warm_up_steps = checkpoint['warm_up_steps']
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-
-    #train_step = kge_model.ruge_train_step if args.ruge else kge_model.train_step
+    # train_step = kge_model.ruge_train_step if args.ruge else kge_model.train_step
     for step in range(init_step, args.max_steps):
         # get batches of rules
         rule_batches = {}
@@ -316,7 +323,7 @@ def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model
         # adv step
         if args.adversarial:
             errors = adv_model.train_adversarial(adv_model, kge_model, adv_optimizer)
-        log = kge_model.train_step(kge_model, adv_model, optimizer, train_iterator, args, rules = rule_batches)
+        log = kge_model.train_step(kge_model, adv_model, optimizer, train_iterator, args, rules=rule_batches)
 
         training_logs.append(log)
 
@@ -334,17 +341,17 @@ def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model
                 'step': step,
                 'current_learning_rate': current_learning_rate,
                 'warm_up_steps': warm_up_steps
-                }
+            }
             save_model(kge_model, optimizer, save_variable_list, args, idx)
 
         if step % args.log_steps == 0:
             metrics = {}
             for metric in training_logs[0].keys():
-                metrics[metric] = sum([log[metric] for log in training_logs])/len(training_logs)
+                metrics[metric] = sum([log[metric] for log in training_logs]) / len(training_logs)
             log_metrics('Training average', step, metrics)
             if args.adversarial:
                 logging.info('# adversarial errors - ' + ', '.join([str(x) for x in errors]))
-                #logging.info('N adversarial errors per adv epoch: {}, {}'.format(errors[0], errors[-1]))
+                # logging.info('N adversarial errors per adv epoch: {}, {}'.format(errors[0], errors[-1]))
             training_logs = []
 
         if args.do_valid and step % args.valid_steps == 0 and step >= STEPS_BEFORE_VALID:
@@ -353,7 +360,7 @@ def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model
             metrics = model_module.test_step(model_module, valid_triples, all_true_triples, args)
             log_metrics('Valid', step, metrics)
             if args.do_grid:
-                info = 'Validation (%d): ' % step
+                info = f'Validation {step}: '
                 for key, val in metrics.items():
                     info = info + key + ' - ' + str(val) + ';'
                 print(info)
@@ -382,7 +389,7 @@ def construct_dataloader(args, train_triples, nentity, nrelation):
         TrainDataset(train_triples, nentity, nrelation, args.negative_sample_size, 'head-batch'),
         batch_size=args.batch_size,
         shuffle=True,
-        num_workers=max(1, args.cpu_num//2),
+        num_workers=max(1, args.cpu_num // 2),
         collate_fn=TrainDataset.collate_fn
     )
 
@@ -390,13 +397,14 @@ def construct_dataloader(args, train_triples, nentity, nrelation):
         TrainDataset(train_triples, nentity, nrelation, args.negative_sample_size, 'tail-batch'),
         batch_size=args.batch_size,
         shuffle=True,
-        num_workers=max(1, args.cpu_num//2),
+        num_workers=max(1, args.cpu_num // 2),
         collate_fn=TrainDataset.collate_fn
     )
 
     train_iterator = BidirectionalOneShotIterator(train_dataloader_head, train_dataloader_tail)
 
     return train_iterator
+
 
 def reset_empty_values(args):
     global DIMENSIONS
@@ -424,7 +432,9 @@ def reset_empty_values(args):
     if len(LOSSES) == 0:
         LOSSES = [args.loss]
     if args.loss != 'custom':
-        GAMMA1 = [0]; GAMMA2 = [0]
+        GAMMA1 = [0];
+        GAMMA2 = [0]
+
 
 def print_rules_info(model, args):
     if not (args.inv or args.impl or args.eq or args.sym):
@@ -435,13 +445,13 @@ def print_rules_info(model, args):
         weight_info += 'inv - ' + str(model.rule_weight['inverse']) + ';'
         eps_info += 'inv - ' + str(model.epsilon_inv) + ';'
     if args.impl:
-        weight_info += 'impl - '+str(model.rule_weight['implication']) + ';'
+        weight_info += 'impl - ' + str(model.rule_weight['implication']) + ';'
         eps_info += 'impl - ' + str(model.epsilon_impl) + ';'
     if args.sym:
-        weight_info += 'sym - '+str(model.rule_weight['symmetry']) + ';'
+        weight_info += 'sym - ' + str(model.rule_weight['symmetry']) + ';'
         eps_info += 'sym - ' + str(model.epsilon_sym) + ';'
     if args.eq:
-        weight_info += 'eq - '+str(model.rule_weight['equality']) + ';'
+        weight_info += 'eq - ' + str(model.rule_weight['equality']) + ';'
         eps_info += 'eq - ' + str(model.epsilon_eq) + ';'
 
     print(weight_info)
@@ -449,8 +459,7 @@ def print_rules_info(model, args):
 
 
 def run_grid(nentity, nrelation, train_triples,
-            valid_triples, test_triples, all_true_triples, args, rule_iterators = None, adv_model = None):
-    
+             valid_triples, test_triples, all_true_triples, args, rule_iterators=None, adv_model=None):
     ntriples = len(train_triples)
     if args.inject:
         print('injecting rules')
@@ -464,7 +473,8 @@ def run_grid(nentity, nrelation, train_triples,
     current_learning_rate = args.learning_rate
 
     if args.negative_adversarial_sampling:
-        print('Temperature - ', args.adversarial_temperature); print()
+        print('Temperature - ', args.adversarial_temperature);
+        print()
 
     info = 'Model - {}; opt - {}; batch size - {}; dataset - {}; lr - {}, gamma = {}; '.format(
         args.model, args.opt, args.batch_size, args.data_path, current_learning_rate, args.gamma)
@@ -477,7 +487,7 @@ def run_grid(nentity, nrelation, train_triples,
     EPSILONS = itertools.product(EPSILONS_INV, EPSILONS_IMPL, EPSILONS_SYM, EPSILONS_EQ)
     WEIGHTS = itertools.product(WEIGHTS_INV, WEIGHTS_IMPL, WEIGHTS_SYM, WEIGHTS_EQ)
 
-    idx = -1 # for saving models with several parameters
+    idx = -1  # for saving models with several parameters
     for g1, g2 in zip(GAMMA1, GAMMA2):
         for eps_inv, eps_impl, eps_sym, eps_eq in EPSILONS:
             for w_inv, w_impl, w_sym, w_eq in WEIGHTS:
@@ -488,9 +498,9 @@ def run_grid(nentity, nrelation, train_triples,
                         model_name=args.model,
                         nentity=nentity,
                         nrelation=nrelation,
-                        ntriples = ntriples,
+                        ntriples=ntriples,
                         hidden_dim=dim,
-                        args = args
+                        args=args
                     )
                     if 'inverse' in RULE_TYPES:
                         kge_model.rule_weight['inverse'] = w_inv
@@ -506,25 +516,30 @@ def run_grid(nentity, nrelation, train_triples,
                         kge_model.epsilon_eq = eps_eq
 
                     kge_model.set_loss(args.loss)
-                    logging.info('Model: %s' % args.model)
-                    logging.info('Data Path: %s' % args.data_path)
-                    logging.info('#entity: %d' % nentity)
-                    logging.info('#relation: %d' % nrelation)
-                    logging.info('optimizer: %s' % args.opt)
-                    logging.info('learning rate: %f' % current_learning_rate)
-                    logging.info('loss: %s' % args.loss)
+                    logging.info(f'Model: {args.model}')
+                    logging.info(f'Data Path: {args.data_path}')
+                    logging.info(f'#entity: {nentity}')
+                    logging.info(f'#relation: {nrelation}')
+                    logging.info(f'optimizer: {args.opt}')
+                    logging.info(f'learning rate: {current_learning_rate}')
+                    logging.info(f'loss: {args.loss}')
                     if args.inv:
-                        logging.info('using inverse rules: eps = %f, weight = %f' % (kge_model.epsilon_inv, kge_model.rule_weight['inverse']))
+                        logging.info(
+                            f'using inverse rules: eps = {kge_model.epsilon_inv}, weight = {kge_model.rule_weight["inverse"]}')
                     if args.impl:
-                        logging.info('using implication rules: eps = %f, weight = %f' % (kge_model.epsilon_impl, kge_model.rule_weight['implication']))
+                        logging.info(
+                            f'using implication rules: eps = {kge_model.epsilon_impl}, weight = {kge_model.rule_weight["implication"]}')
                     if args.sym:
-                        logging.info('using symmetry rules: eps = %f, weight = %f' % (kge_model.epsilon_sym, kge_model.rule_weight['symmetry']))
+                        logging.info(
+                            f'using symmetry rules: eps = {kge_model.epsilon_sym}, weight = {kge_model.rule_weight["symmetry"]}')
                     if args.eq:
-                        logging.info('using equality rules: eps = %f, weight = %f' % (kge_model.epsilon_eq, kge_model.rule_weight['equality']))
+                        logging.info(
+                            f'using equality rules: eps = {kge_model.epsilon_eq}, weight = {kge_model.rule_weight["equality"]}')
                     logging.info('Model Parameter Configuration:')
                     for name, param in kge_model.named_parameters():
-                        logging.info('Parameter %s: %s, require_grad = %s' % (name, str(param.size()), str(param.requires_grad)))
-                    logging.info('Loss function %s' % args.loss)
+                        logging.info(
+                            f'Parameter {name}: {str(param.size())}, require_grad = {str(param.requires_grad)}')
+                    logging.info(f'Loss function {args.loss}')
                     if args.cuda:
                         kge_model = kge_model.cuda()
 
@@ -533,14 +548,15 @@ def run_grid(nentity, nrelation, train_triples,
                     print_rules_info(kge_model, args)
                     args.max_steps = steps
                     args.negative_sample_size = n_negs
-                    #out_line = '#steps = {}, #negs = {};'.format(args.max_steps, args.negative_sample_size)
-                    logging.info('Max steps - %d' % args.max_steps)
-                    logging.info('Negative sample %d ' % args.negative_sample_size)
+                    # out_line = '#steps = {}, #negs = {};'.format(args.max_steps, args.negative_sample_size)
+                    logging.info(f'Max steps - {args.max_steps}')
+                    logging.info(f'Negative sample {args.negative_sample_size}')
                     assert kge_model.inject == args.inject, 'Inject is wrong'
                     # train
 
                     train_iterator = construct_dataloader(args, train_triples, nentity, nrelation)
-                    step = train_model(0, valid_triples, all_true_triples, kge_model, adv_model, train_iterator, rule_iterators, args, str(idx))
+                    step = train_model(0, valid_triples, all_true_triples, kge_model, adv_model, train_iterator,
+                                       rule_iterators, args, str(idx))
                     # valid
                     logging.info('Evaluating on Valid Dataset...')
                     metrics = kge_model.test_step(kge_model, valid_triples, all_true_triples, args)
@@ -550,10 +566,12 @@ def run_grid(nentity, nrelation, train_triples,
                         info = info + key + ' - ' + str(val) + ';'
                     print(info)
                     # test
-                    out_line = '#steps = {}, #negs = {}, dim = {};'.format(step, args.negative_sample_size, kge_model.hidden_dim)
+                    out_line = '#steps = {}, #negs = {}, dim = {};'.format(step, args.negative_sample_size,
+                                                                           kge_model.hidden_dim)
                     metrics = kge_model.test_step(kge_model, test_triples, all_true_triples, args)
                     log_metrics('Test', step, metrics)
-                    values = [str(metrics['MRR']), str(metrics['MR']), str(metrics['HITS@1']), str(metrics['HITS@3']), str(metrics['HITS@10'])]
+                    values = [str(metrics['MRR']), str(metrics['MR']), str(metrics['HITS@1']), str(metrics['HITS@3']),
+                              str(metrics['HITS@10'])]
                     out_line = out_line + ';'.join(values)
                     print(out_line)
 
@@ -562,13 +580,13 @@ def run_grid(nentity, nrelation, train_triples,
 
 
 def read_ruleset_ruge(data_path, rule_type, premise_idx, concl_idx):
-    fname = 'groundings_'+rule_type+'_confidence.txt'
+    fname = 'groundings_' + rule_type + '_confidence.txt'
     rules_info = np.loadtxt(os.path.join(data_path, fname))
 
     premise = rules_info[:, premise_idx]
     conclusion = rules_info[:, concl_idx]
     conf = rules_info[:, -1]
-    rules = [Rule(premise = p, conclusion = c, conf = cf) for p, c, cf in zip(premise, conclusion, conf)]
+    rules = [Rule(premise=p, conclusion=c, conf=cf) for p, c, cf in zip(premise, conclusion, conf)]
     return np.array(rules)
 
 
@@ -577,7 +595,7 @@ def construct_ruge_loader(n_batches, args):
     if ds == 'FB15k':
         rules = read_ruleset_ruge(args.data_path, "inverse", [0, 2, 1], [1, 3, 0])
         rules = np.append(rules, read_ruleset_ruge(
-            args.data_path, "implication", [0, 2, 1], [0, 3, 1] ))
+            args.data_path, "implication", [0, 2, 1], [0, 3, 1]))
         rules = np.append(rules, read_ruleset_ruge(
             args.data_path, "equality", [0, 2, 1], [0, 3, 1]))
         rules = np.append(rules, read_ruleset_ruge(
@@ -585,7 +603,7 @@ def construct_ruge_loader(n_batches, args):
     elif ds == 'FB15k-237':
         rules = read_ruleset_ruge(args.data_path, "inverse", [0, 2, 1], [1, 3, 0])
         rules = np.append(rules, read_ruleset_ruge(
-            args.data_path, "implication", [0, 2, 1], [0, 3, 1] ))
+            args.data_path, "implication", [0, 2, 1], [0, 3, 1]))
         rules = np.append(rules, read_ruleset_ruge(
             args.data_path, "equality", [0, 2, 1], [0, 3, 1]))
     elif ds == 'wn18':
@@ -595,6 +613,7 @@ def construct_ruge_loader(n_batches, args):
 
     ruge_loader = generator(rules, int(n_batches))
     return len(rules), ruge_loader
+
 
 def generator(rules, n_batches):
     '''
@@ -612,14 +631,14 @@ def generator(rules, n_batches):
 
 
 def main(args):
-
     if not torch.cuda.is_available():
         args.cuda = False
 
     if args.ruge:
         args.loss = 'ruge'
 
-    if (not args.do_train) and (not args.do_valid) and (not args.do_test) and (not args.do_experiment) and (not args.do_grid):
+    if (not args.do_train) and (not args.do_valid) and (not args.do_test) and (not args.do_experiment) and (
+            not args.do_grid):
         raise ValueError('one of train/val/test mode must be choosed.')
 
     if args.init_checkpoint:
@@ -638,16 +657,15 @@ def main(args):
 
     set_logger(args)
     if args.regularization != 0:
-        print('L3 regularization with coeff - ', args.regularization)
+        print(f'L3 regularization with coeff - {args.regularization}')
     if args.l2_r != 0:
-        print('L2 regularization with coeff - ', args.l2_r)
+        print(f'L2 regularization with coeff - {args.l2_r}')
     if args.project != 0:
         print('projecting before training')
-    #logging.info('Inverse loss = premise - concl (reverse)')
+    # logging.info('Inverse loss = premise - concl (reverse)')
     if OPT_STOPPING:
         logging.info('Opt stopping is ON')
         print('Opt stopping is on')
-
 
     with open(os.path.join(args.data_path, 'entities.dict')) as fin:
         entity2id = dict()
@@ -693,7 +711,7 @@ def main(args):
     test_triples = read_triple(os.path.join(args.data_path, 'test.txt'), entity2id, relation2id)
     logging.info('#test: %d' % len(test_triples))
 
-    #All true triples
+    # All true triples
     all_true_triples = train_triples + valid_triples + test_triples
     train_args = {}
 
@@ -704,25 +722,34 @@ def main(args):
     rule_iterators = {}
     rules_info = ''
     if args.inv:
-        n_inverse, inverse_batchsize, rule_iterators['inverse'] = setup_rule_loader(n_batches, args.batch_size, args.data_path, 'groundings_inverse.txt', device, RULE_BATCH_SIZE_INV)
-        rules_info += 'Inverse: batch size %d out of %d rules' %( inverse_batchsize, n_inverse) + '\n'
+        n_inverse, inverse_batchsize, rule_iterators['inverse'] = setup_rule_loader(n_batches, args.batch_size,
+                                                                                    args.data_path,
+                                                                                    'groundings_inverse.txt', device,
+                                                                                    RULE_BATCH_SIZE_INV)
+        rules_info += 'Inverse: batch size %d out of %d rules' % (inverse_batchsize, n_inverse) + '\n'
     if args.eq:
-        n_eq, eq_batchsize, rule_iterators['equality'] = setup_rule_loader(n_batches, args.batch_size, args.data_path, 'groundings_equality.txt', device, RULE_BATCH_SIZE_EQ)
+        n_eq, eq_batchsize, rule_iterators['equality'] = setup_rule_loader(n_batches, args.batch_size, args.data_path,
+                                                                           'groundings_equality.txt', device,
+                                                                           RULE_BATCH_SIZE_EQ)
         rules_info += 'Equality: batch size %d out of %d rules' % (eq_batchsize, n_eq) + '\n'
     if args.impl:
-        n_impl, impl_batchsize, rule_iterators['implication'] = setup_rule_loader(n_batches, args.batch_size, args.data_path, 'groundings_implication.txt', device, RULE_BATCH_SIZE_IMPL)
+        n_impl, impl_batchsize, rule_iterators['implication'] = setup_rule_loader(n_batches, args.batch_size,
+                                                                                  args.data_path,
+                                                                                  'groundings_implication.txt', device,
+                                                                                  RULE_BATCH_SIZE_IMPL)
         rules_info += 'implication: batch size %d out of %d rules\n' % (impl_batchsize, n_impl)
     if args.sym:
-        n_symmetry, sym_batchsize, rule_iterators['symmetry'] = setup_rule_loader(n_batches, args.batch_size, args.data_path, 'groundings_symmetric.txt', device, RULE_BATCH_SIZE_SYM)
+        n_symmetry, sym_batchsize, rule_iterators['symmetry'] = setup_rule_loader(n_batches, args.batch_size,
+                                                                                  args.data_path,
+                                                                                  'groundings_symmetric.txt', device,
+                                                                                  RULE_BATCH_SIZE_SYM)
         rules_info += 'symmetry: batch size %d out of %d rules\n' % (sym_batchsize, n_symmetry)
     if args.ruge or args.ruge_inject:
         n_rules, rule_iterators['ruge'] = construct_ruge_loader(n_batches, args)
         rules_info += 'RUGE: Total %d rules\n' % n_rules
 
-
     if rules_info:
         logging.info(rules_info)
-
 
     # ----------- adversarial ------------------
     if args.adversarial:
@@ -733,35 +760,34 @@ def main(args):
         if args.model in ['TransE', 'pRotatE']: mult = 1
         if 'QuatE' in args.model: mult = 4
         adv_model = ADVModel(
-            clauses = adv_clauses,
-            n_entities = len(clentity2id) ,
-            dim = mult*args.hidden_dim,
-            use_cuda = args.cuda
+            clauses=adv_clauses,
+            n_entities=len(clentity2id),
+            dim=mult * args.hidden_dim,
+            use_cuda=args.cuda
         )
         if args.cuda:
             adv_model = adv_model.cuda()
     else:
         adv_model = None
 
-
-
     if args.do_grid:
         if rules_info:
             print(rules_info)
-        run_grid(nentity, nrelation, train_triples, valid_triples, test_triples, all_true_triples, args, rule_iterators, adv_model)
+        run_grid(nentity, nrelation, train_triples, valid_triples, test_triples, all_true_triples, args, rule_iterators,
+                 adv_model)
         exit()
     ntriples = len(train_triples)
     kge_model = KGEModel(
         model_name=args.model,
         nentity=nentity,
         nrelation=nrelation,
-        ntriples = ntriples,
+        ntriples=ntriples,
         hidden_dim=args.hidden_dim,
         gamma=args.gamma,
-        #gamma1 = 0,
-        #gamma2 = 0,
-        #double_entity_embedding=args.double_entity_embedding,
-        #double_relation_embedding=args.double_relation_embedding
+        # gamma1 = 0,
+        # gamma2 = 0,
+        # double_entity_embedding=args.double_entity_embedding,
+        # double_relation_embedding=args.double_relation_embedding
     )
     kge_model.set_loss(args.loss)
 
@@ -773,7 +799,7 @@ def main(args):
         gpus = [0, 1]
         os.environ['CUDA_VISIBLE_DEVICES'] = ','.join(str(x) for x in gpus)
         kge_model.cuda()
-        kge_model = torch.nn.DataParallel(kge_model, device_ids = [0, 1])
+        kge_model = torch.nn.DataParallel(kge_model, device_ids=[0, 1])
 
     elif args.cuda:
         kge_model = kge_model.cuda()
@@ -784,7 +810,7 @@ def main(args):
             TrainDataset(train_triples, nentity, nrelation, args.negative_sample_size, 'head-batch'),
             batch_size=args.batch_size,
             shuffle=True,
-            num_workers=max(1, args.cpu_num//2),
+            num_workers=max(1, args.cpu_num // 2),
             collate_fn=TrainDataset.collate_fn
         )
 
@@ -792,7 +818,7 @@ def main(args):
             TrainDataset(train_triples, nentity, nrelation, args.negative_sample_size, 'tail-batch'),
             batch_size=args.batch_size,
             shuffle=True,
-            num_workers=max(1, args.cpu_num//2),
+            num_workers=max(1, args.cpu_num // 2),
             collate_fn=TrainDataset.collate_fn
         )
 
@@ -894,11 +920,8 @@ def main(args):
 
     # Set valid dataloader as it would be evaluated during training
 
-
-
     if args.do_train:
         train_model(init_step, valid_triples, all_true_triples, kge_model, train_iterator, len(train_triples), args)
-
 
     if args.evaluate_train:
         logging.info('Evaluating on Training Dataset...')
@@ -910,7 +933,7 @@ def main(args):
     if args.do_experiment:
         logging.info('\n\nSTARTING EXPERIMENT\n')
 
-    #gamma1_values = np.array([args.gamma1, args.gamma1 + .5, args.gamma1 + 1])
+    # gamma1_values = np.array([args.gamma1, args.gamma1 + .5, args.gamma1 + 1])
     '''
     g1 = args.gamma1
     g2 = g1 + args.diff
@@ -919,11 +942,10 @@ def main(args):
     logging.info('gamma2 = %f' % kge_model.gamma2)
     '''
     train_model(init_step, valid_triples, all_true_triples, kge_model, train_iterator, rule_iterators, args)
-    #model_module = kge_model.module if args.parallel else kge_model
-    #metrics = model_module.test_step(model_module, test_triples, all_true_triples, args)
-    #log_metrics('Test', step, metrics)
-    #logging.info('\n')
-
+    # model_module = kge_model.module if args.parallel else kge_model
+    # metrics = model_module.test_step(model_module, test_triples, all_true_triples, args)
+    # log_metrics('Test', step, metrics)
+    # logging.info('\n')
 
     if args.do_valid:
         logging.info('Evaluating on Valid Dataset...')
@@ -943,11 +965,9 @@ def main(args):
         metrics = model_module.test_step(kge_model, train_triples, all_true_triples, args)
         log_metrics('Test', step, metrics)
 
+
 if __name__ == '__main__':
     main(parse_args())
-
-
-
 
 '''
 TODO:

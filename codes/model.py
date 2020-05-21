@@ -6,14 +6,12 @@ from __future__ import print_function
 
 import logging
 
-import numpy as np
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 import numpy as np
-from numpy.random import RandomState
 
 
 from sklearn.metrics import average_precision_score
@@ -26,6 +24,7 @@ from dataloader import TestDataset
 # regularization terms options
 L2 = True
 L1 = False
+# what is L@_COEFF
 L2_COEFF = 0.00002
 
 PROJECT_CUBE = False
@@ -313,7 +312,7 @@ class KGEModel(nn.Module):
             'head': head,
             **relation_dict,
             'tail': tail
-        
+
             }
         #arg_list = [head] + relation_list + [tail]
         #arg_list += [mode] if self.model_name not in ['biRotatE', 'TransRotatE', 'TransQuatE', 'QuatE', 'sTransQuatE','sTransRotatE'] else []
@@ -493,14 +492,14 @@ class KGEModel(nn.Module):
              = self.extract_relations(rotator_head, rotator_tail)
         #Make phases of relations uniformly distributed in [-pi, pi]
 
-        re_score = re_relation_head * re_head - im_relation_head * im_head
-        im_score = re_relation_head * im_head + im_relation_head * re_head
-
         re_score_tail = re_relation_tail * re_tail + im_relation_tail * im_tail
         im_score_tail = re_relation_tail * im_tail - im_relation_tail * re_tail
 
-        re_score = re_score - re_score_tail
-        im_score = im_score - im_score_tail
+        re_score_head = re_relation_head * re_head - im_relation_head * im_head
+        im_score_head = re_relation_head * im_head + im_relation_head * re_head
+
+        re_score = re_score_head - re_score_tail
+        im_score = im_score_head - im_score_tail
         score = torch.stack([re_score, im_score], dim = 0)
         score = score.norm(dim = 0)
         score = score.sum(dim = 2)
@@ -630,7 +629,7 @@ class KGEModel(nn.Module):
         r_relation_x_c = - r_relation_x
         r_relation_y_c = - r_relation_y
         r_relation_z_c = - r_relation_z
-        
+
         d = torch.stack([l_relation_s, l_relation_x, l_relation_y, l_relation_z], dim=2)
         d1 = d.norm(dim=3)
 
@@ -638,7 +637,7 @@ class KGEModel(nn.Module):
         denominator_r = torch.sqrt(r_relation_s ** 2 + r_relation_x ** 2 + r_relation_y ** 2 + r_relation_z ** 2)
         denominator_h = torch.sqrt(s_head ** 2 + x_head ** 2 + y_head ** 2 + z_head ** 2)
         denominator_t = torch.sqrt(s_tail ** 2 + x_tail ** 2 + y_tail ** 2 + z_tail ** 2)
-        
+
         s_head = s_head / (denominator_l * denominator_l)
         x_head = x_head / (denominator_l * denominator_l)
         y_head = y_head / (denominator_l * denominator_l)
@@ -652,31 +651,31 @@ class KGEModel(nn.Module):
         tx_c = s_tail * r_relation_x_c + r_relation_s * x_tail + y_tail * r_relation_z_c - r_relation_y_c * z_tail
         ty_c = s_tail * r_relation_y_c + r_relation_s * y_tail + z_tail * r_relation_x_c - r_relation_z_c * x_tail
         tz_c = s_tail * r_relation_z_c + r_relation_s * z_tail + x_tail * r_relation_y_c - r_relation_x_c * y_tail
-        
+
         ts = ts_c * r_relation_s - tx_c * r_relation_x - ty_c * r_relation_y - tz_c * r_relation_z
         tx = tx_c * r_relation_s + r_relation_x * ts_c + tz_c * r_relation_y - r_relation_z * ty_c
         ty = ty_c * r_relation_s + r_relation_y * ts_c + tx_c * r_relation_z - r_relation_x * tz_c
         tz = tz_c * r_relation_s + r_relation_z * ts_c + ty_c * r_relation_x - r_relation_y * tx_c
-        
+
         hs_c = s_head * l_relation_s - x_head * l_relation_x_c - y_head * l_relation_y_c - z_head * l_relation_z_c
         hx_c = s_head * l_relation_x_c + l_relation_s * x_head + y_head * l_relation_z_c - l_relation_y_c * z_head
         hy_c = s_head * l_relation_y_c + l_relation_s * y_head + z_head * l_relation_x_c - l_relation_z_c * x_head
         hz_c = s_head * l_relation_z_c + l_relation_s * z_head + x_head * l_relation_y_c - l_relation_x_c * y_head
-        
+
         hs = hs_c * l_relation_s - hx_c * l_relation_x - hy_c * l_relation_y - hz_c * l_relation_z
         hx = hx_c * l_relation_s + l_relation_x * hs_c + hz_c * l_relation_y - l_relation_z * hy_c
         hy = hy_c * l_relation_s + l_relation_y * hs_c + hx_c * l_relation_z - l_relation_x * hz_c
         hz = hz_c * l_relation_s + l_relation_z * hs_c + hy_c * l_relation_x - l_relation_y * hx_c
-        
+
         s = hs + relation_s - ts
         x = hx + relation_x - tx
         y = hy + relation_y - ty
         z = hz + relation_z - tz
-        
+
         score = torch.stack([s, x, y, z], dim=0)
         score = score.norm(dim=0)
         score = self.gamma.item() - score.sum(dim=2)
-        
+
         return score
 
     def l2_regularizer2(self):
@@ -776,7 +775,7 @@ class KGEModel(nn.Module):
 
     def custom_loss(self, positive_score, negative_score, subsampling_weight, args):
         negative_score = self.gamma2 - negative_score                # model.gamma - negative_score
-        
+
         if args.negative_adversarial_sampling:
             #In self-adversarial sampling, we do not apply back-propagation on the sampling weight
             negative_score = (F.softmax(negative_score * args.adversarial_temperature, dim = 1).detach()
@@ -846,11 +845,11 @@ class KGEModel(nn.Module):
         else:
             temploss = temploss.mean(dim=1)
 
-        if args.uni_weight:                           
+        if args.uni_weight:
             positive_sample_loss = positive_score.mean()
             negative_sample_loss = negative_score.mean()
         else:
-            positive_sample_loss = positive_score.mean()                    
+            positive_sample_loss = positive_score.mean()
             negative_sample_loss = negative_score.mean()
 
         # yy = torch.tensor([1.0], dtype=torch.float).cuda()
