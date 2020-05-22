@@ -249,6 +249,8 @@ def construct_dataloader(args, train_triples, nentity, nrelation):
 
 
 def main(args):
+    if not torch.cuda.is_available():
+        args.cuda = False
 
     if args.init_checkpoint:
         override_config(args)
