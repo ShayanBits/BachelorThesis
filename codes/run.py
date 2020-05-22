@@ -19,6 +19,7 @@ import itertools
 import numpy as np
 import torch
 
+from datetime import datetime
 from torch.utils.data import DataLoader
 
 from model import KGEModel
@@ -228,11 +229,12 @@ def set_logger(args):
     '''
     Write logs to checkpoint and console
     '''
+    timeStamp = datetime.now().strftime("_%d_%m_%Y__at_%H_%M")
 
     if args.do_train:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_' + args.model + '.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_' + args.model + timeStamp +'.log')
     else:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_' + args.model + '.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_' + args.model + timeStamp +'.log')
 
     logging.basicConfig(
         format='%(asctime)s %(levelname)-8s %(message)s',
@@ -476,14 +478,17 @@ def run_grid(nentity, nrelation, train_triples,
         print('Temperature - ', args.adversarial_temperature);
         print()
 
-    info = 'Model - {}; opt - {}; batch size - {}; dataset - {}; lr - {}, gamma = {}; '.format(
-        args.model, args.opt, args.batch_size, args.data_path, current_learning_rate, args.gamma)
-    info2 = 'Loss fnc - {}; inv - {}; impl - {}; sym - {}; eq - {}'.format(
-        args.loss, args.inv, args.impl, args.sym, args.eq)
+    info = f'Model - {args.model}; opt - {args.opt}; batch size - {args.batch_size}; dataset - {args.data_path}; lr - {current_learning_rate}, gamma = {args.gamma}'
+    info2 = f'Loss fnc - {args.loss}; inv - {args.inv}; impl - {args.impl}; sym - {args.sym}; eq - {args.eq}'
+
     print(info)
     print(info2)
 
+    # TODO: code duplicate from line 473
     current_learning_rate = args.learning_rate
+
+    # TODO: question : naming convention? what does the following short forms mean: inverse, implication, symmetry,
+    #  equality
     EPSILONS = itertools.product(EPSILONS_INV, EPSILONS_IMPL, EPSILONS_SYM, EPSILONS_EQ)
     WEIGHTS = itertools.product(WEIGHTS_INV, WEIGHTS_IMPL, WEIGHTS_SYM, WEIGHTS_EQ)
 
@@ -543,7 +548,7 @@ def run_grid(nentity, nrelation, train_triples,
                     if args.cuda:
                         kge_model = kge_model.cuda()
 
-                    logging.info('Ramdomly Initializing %s Model...' % args.model)
+                    logging.info(f'Randomly Initializing {args.model} Model...')
 
                     print_rules_info(kge_model, args)
                     args.max_steps = steps
@@ -561,18 +566,17 @@ def run_grid(nentity, nrelation, train_triples,
                     logging.info('Evaluating on Valid Dataset...')
                     metrics = kge_model.test_step(kge_model, valid_triples, all_true_triples, args)
                     log_metrics('Valid', step, metrics)
-                    info = 'Validation (%d): ' % step
+                    info = f'Validation ({step}): '
                     for key, val in metrics.items():
                         info = info + key + ' - ' + str(val) + ';'
                     print(info)
                     # test
-                    out_line = '#steps = {}, #negs = {}, dim = {};'.format(step, args.negative_sample_size,
-                                                                           kge_model.hidden_dim)
+                    out_line = f'#steps = {step}, #negs = {args.negative_sample_size}, dim = {kge_model.hidden_dim}'
                     metrics = kge_model.test_step(kge_model, test_triples, all_true_triples, args)
                     log_metrics('Test', step, metrics)
                     values = [str(metrics['MRR']), str(metrics['MR']), str(metrics['HITS@1']), str(metrics['HITS@3']),
                               str(metrics['HITS@10'])]
-                    out_line = out_line + ';'.join(values)
+                    out_line = out_line + '\n'.join(values)
                     print(out_line)
 
                     logging.info('\n-----------------------------------------------')
