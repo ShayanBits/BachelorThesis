@@ -16,7 +16,7 @@ SAVE_ID=$5
 FULL_DATA_PATH=$DATA_PATH/$DATASET
 SAVE=$SAVE_PATH/"$MODEL"_"$DATASET"_"$SAVE_ID"
 
-#Only used in training
+#Only used in training, grid and experiment mode
 BATCH_SIZE=$6
 NEGATIVE_SAMPLE_SIZE=$7
 HIDDEN_DIM=$8
@@ -31,6 +31,7 @@ OPT=${16}
 
 if [ $MODE == "grid" ]
 then
+  echo "Starting in Grid mode......"
     HIDDEN_DIM=$7
     GAMMA=$8
     ALPHA=$9
@@ -51,10 +52,8 @@ then
     ${12} ${13} ${14} ${15}
 
 
-
 elif [ $MODE == "train" ]
 then
-
 echo "Start Training......"
 
 CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_train \
@@ -71,22 +70,9 @@ CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_train \
     --valid_steps 25000 \
     ${17} ${18} ${19} ${20} ${21} 
 
-elif [ $MODE == "valid" ]
-then
-
-echo "Start Evaluation on Valid Data Set......"
-
-CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_valid --cuda -init $SAVE
-    
-elif [ $MODE == "test" ]
-then
-
-echo "Start Evaluation on Test Data Set......"
-
-CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_test --cuda -init $SAVE
-
 elif [ $MODE == "experiment" ]
 then
+echo "Start Experimenting......"
 CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_experiment \
     --cuda \
     --do_valid \
@@ -100,7 +86,21 @@ CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_experiment \
     --gamma1 $GAMMA1 \
     --diff $DIFF \
     --opt $OPT \
-    ${17} ${18} ${19} ${20} 
+    ${17} ${18} ${19} ${20}
+
+elif [ $MODE == "valid" ]
+then
+
+echo "Start Evaluation on Valid Data Set......"
+
+CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_valid --cuda -init $SAVE
+    
+elif [ $MODE == "test" ]
+then
+
+echo "Start Evaluation on Test Data Set......"
+
+CUDA_VISIBLE_DEVICES=$GPU_DEVICE python3 -u $CODE_PATH/run.py --do_test --cuda -init $SAVE
 
 else
    echo "Unknown MODE" $MODE

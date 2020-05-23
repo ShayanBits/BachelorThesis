@@ -232,9 +232,9 @@ def set_logger(args):
     timeStamp = datetime.now().strftime("_%d_%m_%Y__at_%H_%M")
 
     if args.do_train:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_' + args.model + timeStamp +'.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_' + args.model + timeStamp + '.log')
     else:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_' + args.model + timeStamp +'.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_' + args.model + timeStamp + '.log')
 
     logging.basicConfig(
         format='%(asctime)s %(levelname)-8s %(message)s',
@@ -649,7 +649,7 @@ def main(args):
         override_config(args)
 
     elif args.data_path is None:
-        raise ValueError('one of init_checkpoint/data_path must be choosed.')
+        raise ValueError('one of init_checkpoint/data_path must be chosen.')
 
     if args.do_train and args.save_path is None:
         raise ValueError('Where do you want to save your trained model?')
@@ -698,26 +698,26 @@ def main(args):
     args.nentity = nentity
     args.nrelation = nrelation
 
+    # TODO: question: when do we use injection?
     if args.inject:
         logging.info('With rule injection')
     else:
         logging.info('NO INJECTION')
 
-    logging.info('Model: %s' % args.model)
-    logging.info('Data Path: %s' % args.data_path)
-    logging.info('#entity: %d' % nentity)
-    logging.info('#relation: %d' % nrelation)
+    logging.info(f'Model: {args.model}')
+    logging.info(f'Data Path: {args.data_path}')
+    logging.info(f'#entity: {nentity}')
+    logging.info(f'#relation: {nrelation}')
 
     train_triples = read_triple(os.path.join(args.data_path, 'train.txt'), entity2id, relation2id)
-    logging.info('#train: %d' % len(train_triples))
+    logging.info(f'#train: {len(train_triples)}')
     valid_triples = read_triple(os.path.join(args.data_path, 'valid.txt'), entity2id, relation2id)
-    logging.info('#valid: %d' % len(valid_triples))
+    logging.info(f'#valid: {len(valid_triples)}')
     test_triples = read_triple(os.path.join(args.data_path, 'test.txt'), entity2id, relation2id)
-    logging.info('#test: %d' % len(test_triples))
+    logging.info(f'#test: {len(test_triples)}')
 
     # All true triples
     all_true_triples = train_triples + valid_triples + test_triples
-    train_args = {}
 
     # set up rule iterators
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -912,13 +912,13 @@ def main(args):
         exit()
     '''
     logging.info('Start Training...')
-    logging.info('init_step = %d' % init_step)
-    logging.info('learning_rate = %d' % current_learning_rate)
-    logging.info('batch_size = %d' % args.batch_size)
-    logging.info('negative_adversarial_sampling = %d' % args.negative_adversarial_sampling)
-    logging.info('hidden_dim = %d' % args.hidden_dim)
-    logging.info('gamma = %f' % args.gamma)
-    logging.info('negative_adversarial_sampling = %s' % str(args.negative_adversarial_sampling))
+    logging.info(f'init_step = {init_step}')
+    logging.info(f'learning_rate = {current_learning_rate}')
+    logging.info(f'batch_size = {args.batch_size}')
+    logging.info(f'negative_adversarial_sampling = {args.negative_adversarial_sampling}')
+    logging.info(f'hidden_dim = {args.hidden_dim}')
+    logging.info(f'gamma = {args.gamma}')
+    logging.info(f'negative_adversarial_sampling = {str(args.negative_adversarial_sampling)}')
     if args.negative_adversarial_sampling:
         logging.info('adversarial_temperature = %f' % args.adversarial_temperature)
 
