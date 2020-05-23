@@ -187,7 +187,7 @@ class ADVModel(nn.Module):
             n_errors = adv_model._n_errors(concl_scores, premise_scores, conj_scores)
             loss = adv_model.adversarial_loss(concl_scores, premise_scores, conj_scores)
             loss = loss
-            #TODO: above line is not needed.
+            # TODO: above line is not needed.
 
             # print('Loss at epoch {} is {}'.format(epoch, loss.item()))
 
