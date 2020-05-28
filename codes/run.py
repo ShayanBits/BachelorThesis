@@ -476,7 +476,6 @@ def run_grid(nentity, nrelation, train_triples,
 
     if args.negative_adversarial_sampling:
         print('Temperature - ', args.adversarial_temperature);
-        print()
 
     info = f'Model - {args.model}; opt - {args.opt}; batch size - {args.batch_size}; dataset - {args.data_path}; lr - {current_learning_rate}, gamma = {args.gamma}'
     info2 = f'Loss fnc - {args.loss}; inv - {args.inv}; impl - {args.impl}; sym - {args.sym}; eq - {args.eq}'
@@ -623,6 +622,7 @@ def generator(rules, n_batches):
     '''
     Generates batches; used for RUGE rule loading
     '''
+    # TODO: are the next two lines necessary?
     np.random.shuffle(rules)
     batches = np.array_split(rules, n_batches)
     curr_batch = 0
@@ -670,6 +670,12 @@ def main(args):
     if OPT_STOPPING:
         logging.info('Opt stopping is ON')
         print('Opt stopping is on')
+
+    # for debug: use the following data_dir to access the correct data
+    # current_dir = os.path.dirname(__file__)
+    # data_dir = current_dir + "/../" + args.data_path
+    #
+    # with open(os.path.join(data_dir, 'entities.dict')) as fin:
 
     with open(os.path.join(args.data_path, 'entities.dict')) as fin:
         entity2id = dict()
@@ -750,7 +756,7 @@ def main(args):
         rules_info += 'symmetry: batch size %d out of %d rules\n' % (sym_batchsize, n_symmetry)
     if args.ruge or args.ruge_inject:
         n_rules, rule_iterators['ruge'] = construct_ruge_loader(n_batches, args)
-        rules_info += 'RUGE: Total %d rules\n' % n_rules
+        rules_info += f'RUGE: Total {n_rules} rules\n'
 
     if rules_info:
         logging.info(rules_info)
@@ -787,7 +793,8 @@ def main(args):
         nrelation=nrelation,
         ntriples=ntriples,
         hidden_dim=args.hidden_dim,
-        gamma=args.gamma,
+        # for debug: the following line might cause problem while executing the code in nin-debug mode
+        args= args
         # gamma1 = 0,
         # gamma2 = 0,
         # double_entity_embedding=args.double_entity_embedding,

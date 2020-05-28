@@ -187,7 +187,7 @@ class KGEModel(nn.Module):
             'adaptive_margin': self.adaptive_margin_loss,
             'quate': self.quate_loss,
             'ruge': self.ruge_loss,
-            'bce': self.bce_logits_loss,    # ruge loss; to test models with and without ruge rule addition
+            'bce': self.bce_logits_loss,    # ruge loss; to test models with and without ruge rule addition binary cross entropy
             'uncertain_loss': self.uncertain_loss,
             'limit_loss':self.Limit_Loss
         }
@@ -1023,7 +1023,7 @@ class KGEModel(nn.Module):
             'symmetry': model.symmetry_loss
             }
 
-        loss_rules = 0
+        rule_loss = 0
         longTensor = torch.cuda.LongTensor if use_cuda else torch.LongTensor
         rules_log = {}
         for rule_type, grounds in groundings.items():
@@ -1031,10 +1031,10 @@ class KGEModel(nn.Module):
                 grounds = grounds.cuda()
             curr_rule_loss = loss_groundings[rule_type](model, grounds, longTensor)
             curr_rule_loss = curr_rule_loss.mean()
-            loss_rules += model.rule_weight[rule_type] * curr_rule_loss
+            rule_loss += model.rule_weight[rule_type] * curr_rule_loss
             rules_log[rule_type + ' loss'] = curr_rule_loss.item()
 
-        return loss_rules, rules_log
+        return rule_loss, rules_log
 
     @staticmethod
     def ruge_train_step(model, optimizer, train_iterator, args, rules, show_soft):
