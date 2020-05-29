@@ -672,18 +672,16 @@ def main(args):
         print('Opt stopping is on')
 
     # for debug: use the following data_dir to access the correct data
-    # current_dir = os.path.dirname(__file__)
-    # data_dir = current_dir + "/../" + args.data_path
-    #
-    # with open(os.path.join(data_dir, 'entities.dict')) as fin:
+    current_dir = os.path.dirname(__file__)
+    data_dir = current_dir + "/../" + args.data_path
 
-    with open(os.path.join(args.data_path, 'entities.dict')) as fin:
+    with open(os.path.join(data_dir, 'entities.dict')) as fin:
         entity2id = dict()
         for line in fin:
             eid, entity = line.strip().split('\t')
             entity2id[entity] = int(eid)
 
-    with open(os.path.join(args.data_path, 'relations.dict')) as fin:
+    with open(os.path.join(data_dir, 'relations.dict')) as fin:
         relation2id = dict()
         for line in fin:
             rid, relation = line.strip().split('\t')
@@ -692,7 +690,7 @@ def main(args):
     # Read regions for Countries S* datasets
     if args.countries:
         regions = list()
-        with open(os.path.join(args.data_path, 'regions.list')) as fin:
+        with open(os.path.join(data_dir, 'regions.list')) as fin:
             for line in fin:
                 region = line.strip()
                 regions.append(entity2id[region])
@@ -711,15 +709,15 @@ def main(args):
         logging.info('NO INJECTION')
 
     logging.info(f'Model: {args.model}')
-    logging.info(f'Data Path: {args.data_path}')
+    logging.info(f'Data Path: {data_dir}')
     logging.info(f'#entity: {nentity}')
     logging.info(f'#relation: {nrelation}')
 
-    train_triples = read_triple(os.path.join(args.data_path, 'train.txt'), entity2id, relation2id)
+    train_triples = read_triple(os.path.join(data_dir, 'train.txt'), entity2id, relation2id)
     logging.info(f'#train: {len(train_triples)}')
-    valid_triples = read_triple(os.path.join(args.data_path, 'valid.txt'), entity2id, relation2id)
+    valid_triples = read_triple(os.path.join(data_dir, 'valid.txt'), entity2id, relation2id)
     logging.info(f'#valid: {len(valid_triples)}')
-    test_triples = read_triple(os.path.join(args.data_path, 'test.txt'), entity2id, relation2id)
+    test_triples = read_triple(os.path.join(data_dir, 'test.txt'), entity2id, relation2id)
     logging.info(f'#test: {len(test_triples)}')
 
     # All true triples
@@ -733,24 +731,24 @@ def main(args):
     rules_info = ''
     if args.inv:
         n_inverse, inverse_batchsize, rule_iterators['inverse'] = setup_rule_loader(n_batches, args.batch_size,
-                                                                                    args.data_path,
+                                                                                    data_dir,
                                                                                     'groundings_inverse.txt', device,
                                                                                     RULE_BATCH_SIZE_INV)
         rules_info += 'Inverse: batch size %d out of %d rules' % (inverse_batchsize, n_inverse) + '\n'
     if args.eq:
-        n_eq, eq_batchsize, rule_iterators['equality'] = setup_rule_loader(n_batches, args.batch_size, args.data_path,
+        n_eq, eq_batchsize, rule_iterators['equality'] = setup_rule_loader(n_batches, args.batch_size, data_dir,
                                                                            'groundings_equality.txt', device,
                                                                            RULE_BATCH_SIZE_EQ)
         rules_info += 'Equality: batch size %d out of %d rules' % (eq_batchsize, n_eq) + '\n'
     if args.impl:
         n_impl, impl_batchsize, rule_iterators['implication'] = setup_rule_loader(n_batches, args.batch_size,
-                                                                                  args.data_path,
+                                                                                  data_dir,
                                                                                   'groundings_implication.txt', device,
                                                                                   RULE_BATCH_SIZE_IMPL)
         rules_info += 'implication: batch size %d out of %d rules\n' % (impl_batchsize, n_impl)
     if args.sym:
         n_symmetry, sym_batchsize, rule_iterators['symmetry'] = setup_rule_loader(n_batches, args.batch_size,
-                                                                                  args.data_path,
+                                                                                  data_dir,
                                                                                   'groundings_symmetric.txt', device,
                                                                                   RULE_BATCH_SIZE_SYM)
         rules_info += 'symmetry: batch size %d out of %d rules\n' % (sym_batchsize, n_symmetry)
@@ -763,7 +761,7 @@ def main(args):
 
     # ----------- adversarial ------------------
     if args.adversarial:
-        clauses_filename = os.path.join(args.data_path, 'clauses_0.9.pl')
+        clauses_filename = os.path.join(data_dir, 'clauses_0.9.pl')
         adv_clauses, clentity2id = dt.read_clauses(clauses_filename, relation2id)
         n_clause_entities = len(clentity2id)
         mult = 2
