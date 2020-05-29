@@ -713,7 +713,7 @@ class KGEModel(nn.Module):
 
     # -------------------------------LOSS FUNCTIONS--------------------------------------------
 
-    def margin_ranking(self, positive_score, negative_score, args):
+    def margin_ranking(self, positive_score, negative_score, subsampling_weight, args):
         tempLoss = torch.relu(positive_score + self.gamma - negative_score)
         adv = F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
         if args.negative_adversarial_sampling:
@@ -732,7 +732,7 @@ class KGEModel(nn.Module):
         loss = torch.mean(tempLoss)
         return positive_sample_loss, negative_sample_loss, loss
 
-    def limit_loss(self, positive_score, negative_score, args):
+    def limit_loss(self, positive_score, negative_score, subsampling_weight, args):
         tempLoss = torch.relu(positive_score + self.gamma - negative_score) + torch.relu(self.limit_loss_lambda * (positive_score - self.gamma2))
         adv = 1 - F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
         if args.negative_adversarial_sampling:
@@ -839,7 +839,7 @@ class KGEModel(nn.Module):
 
         return positive_sample_loss, negative_sample_loss, loss
 
-    def negative_log_likelihood_loss(self, positive_score, negative_score, args):
+    def negative_log_likelihood_loss(self, positive_score, negative_score, subsampling_weight, args):
 
         negative_score = - F.logsigmoid(-1 * negative_score) + self.nll_loss
         positive_score = - F.logsigmoid(1 * positive_score).mean()
