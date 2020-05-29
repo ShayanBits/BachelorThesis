@@ -188,7 +188,7 @@ class KGEModel(nn.Module):
             'adaptive_margin': self.adaptive_margin_loss,
             'custom': self.custom_loss,
             'rotate': self.rotate_loss,
-            # 'negative_likelihood': self.negative_likelihood,
+            'negative_log_likelihood': self.negative_log_likelihood_loss,
             'quate': self.quate_loss,
             'bce': self.bce_logits_loss,    # ruge loss; to test models with and without ruge rule addition binary cross entropy
             'ruge': self.ruge_loss,
@@ -199,8 +199,11 @@ class KGEModel(nn.Module):
             self.criterion = nn.Softplus()
 
         if loss_name == 'limit_loss':
-            self.lda = 0.01
-            print(self.lda)
+            self.limit_loss_lambda = 0.01
+
+        if loss_name == 'negative_log_likelihood':
+            # this can be an array of possible lambdas for grid search
+            self.nll_loss = 0.01
 
         if loss_name == 'adaptive_margin':
             self.margin = nn.Parameter(torch.FloatTensor([0.1]), requires_grad = True)
@@ -708,16 +711,16 @@ class KGEModel(nn.Module):
         '''
         return l2_reg
 
-    # ---------------------------------------------------------------------------
+    # -------------------------------LOSS FUNCTIONS--------------------------------------------
 
-    def margin_ranking(self, positive_score, negative_score, subsampling_weight, args):
-        temploss = torch.relu(positive_score + self.gamma - negative_score)
-        adv = 1 - F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
+    def margin_ranking(self, positive_score, negative_score, args):
+        tempLoss = torch.relu(positive_score + self.gamma - negative_score)
+        adv: Tensor = F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
         if args.negative_adversarial_sampling:
             # In self-adversarial sampling, we do not apply back-propagation on the sampling weight
-            temploss = (adv * temploss).sum(dim=1)
+            tempLoss = (adv * tempLoss).sum(dim=1)
         else:
-            temploss = temploss.mean(dim=1)
+            tempLoss = tempLoss.mean(dim=1)
 
         if args.uni_weight:
             positive_sample_loss = positive_score.mean()
@@ -726,17 +729,17 @@ class KGEModel(nn.Module):
             positive_sample_loss = positive_score.mean()
             negative_sample_loss = negative_score.mean()
 
-        loss = torch.mean(temploss)
+        loss = torch.mean(tempLoss)
         return positive_sample_loss, negative_sample_loss, loss
 
-    def limit_loss(self, positive_score, negative_score, subsampling_weight, args):
-        temploss = torch.relu(positive_score + self.gamma - negative_score) + torch.relu(self.lda*(positive_score-self.gamma2))
+    def limit_loss(self, positive_score, negative_score, args):
+        tempLoss = torch.relu(positive_score + self.gamma - negative_score) + torch.relu(self.limit_loss_lambda * (positive_score - self.gamma2))
         adv = 1 - F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
         if args.negative_adversarial_sampling:
             # In self-adversarial sampling, we do not apply back-propagation on the sampling weight
-            temploss = (adv * temploss).sum(dim=1)
+            tempLoss = (adv * tempLoss).sum(dim=1)
         else:
-            temploss = temploss.mean(dim=1)
+            tempLoss = tempLoss.mean(dim=1)
 
         if args.uni_weight:
             positive_sample_loss = positive_score.mean()
@@ -749,7 +752,7 @@ class KGEModel(nn.Module):
         # mrg = self.gamma.type(torch.cuda.DoubleTensor)
         # criterion = nn.MarginRankingLoss(mrg).cuda()
         # loss = criterion(positive_score, negative_score, yy).cuda()
-        loss = torch.mean(temploss)
+        loss = torch.mean(tempLoss)
         # print(loss)
         # y = np.repeat([-1], repeats=positive_score.shape[0])
         # y = torch.tensor(y, dtype=torch.float).cuda()
@@ -836,14 +839,10 @@ class KGEModel(nn.Module):
 
         return positive_sample_loss, negative_sample_loss, loss
 
-    def negative_likelihood(self, positive_score, negative_score, subsampling_weight, args):
-        if self.model_name != 'ComplEx':
-            negative_score = 1 * negative_score
-            positive_score = (-1) * positive_score
+    def negative_log_likelihood_loss(self, positive_score, negative_score, args):
 
-        bigY = 0
-        negative_score = - F.logsigmoid(bigY * negative_score).mean
-        positive_score = - F.logsigmoid(bigY * positive_score).mean
+        negative_score = - F.logsigmoid(-1 * negative_score) + self.nll_loss
+        positive_score = - F.logsigmoid(1 * positive_score).mean()
 
         lambdaOfTheta = 0
         positive_sample_loss = (lambdaOfTheta + positive_score).sum()
