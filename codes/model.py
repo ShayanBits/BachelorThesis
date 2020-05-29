@@ -182,14 +182,17 @@ class KGEModel(nn.Module):
     def set_loss(self, loss_name):
         self.loss_name = loss_name
         loss_fnc = {
-            'rotate': self.rotate_loss,
-            'custom': self.custom_loss,
+
+            'margin_ranking':self.margin_ranking,
+            'limit_loss':self.limit_loss,
             'adaptive_margin': self.adaptive_margin_loss,
+            'custom': self.custom_loss,
+            'rotate': self.rotate_loss,
+            # 'negative_likelihood': self.negative_likelihood,
             'quate': self.quate_loss,
-            'ruge': self.ruge_loss,
             'bce': self.bce_logits_loss,    # ruge loss; to test models with and without ruge rule addition binary cross entropy
+            'ruge': self.ruge_loss,
             'uncertain_loss': self.uncertain_loss,
-            'limit_loss':self.Limit_Loss
         }
 
         if loss_name == 'quate':
@@ -706,138 +709,28 @@ class KGEModel(nn.Module):
         return l2_reg
 
     # ---------------------------------------------------------------------------
-    def bce_logits_loss(self, positive_score, negative_score):
-        criterion = nn.BCEWithLogitsLoss(reduction = 'sum')
-        positive_score = positive_score.squeeze()
-        negative_score = negative_score.view(-1)
-        total = positive_score.numel() + negative_score.numel()
-        positive_loss = criterion(positive_score, torch.ones(positive_score.shape).cuda())
-        negative_loss = criterion(negative_score, torch.zeros(negative_score.shape).cuda())
-        loss = (positive_loss + negative_loss)/total
-        return positive_loss/positive_score.numel(), negative_loss/negative_score.numel(), loss
 
-    def ruge_loss(self, positive_score, negative_score, unlabeled_scores, soft_labels):
-        # TODO: add adversarial temperature??
-        positive_loss = self.criterion(positive_score, torch.ones(positive_score.shape).cuda())
-        negative_loss = self.criterion(negative_score, torch.zeros(negative_score.shape).cuda())
-        total_labeled = positive_score.numel() + negative_score.numel()
-
-        unlabeled_loss = self.criterion(unlabeled_scores.squeeze(), soft_labels.detach())
-
-        l2 = self.l2_regularizer()
-        l2 = self.entity_embedding.norm() + self.relation_embedding.norm()
-
-        loss = labeled_loss/total_labeled + unlabeled_loss.mean() + 0.0002*l2
-
-        loss = (positive_loss + negative_loss)/total_labeled + unlabeled_loss / unlabeled_scores.numel()
-        return positive_loss/positive_score.numel(), negative_loss/negative_score.numel(), unlabeled_loss/unlabeled_scores.numel(), loss
-
-
-    def quate_loss(self, positive_score, negative_score, subsampling_weight, args):
-        negative_score = negative_score.view(1, -1).squeeze()
-        positive_score = positive_score.squeeze()
-        #print('positive score - ', positive_score)
-        #print('negative score - ', negative_score)
-        negative_loss = torch.mean(self.criterion(-negative_score))
-        positive_loss = torch.mean(self.criterion(positive_score))
-
-        regul1 = self.entity_embedding.norm(p = 1)**2
-        loss = positive_loss + negative_loss
-
-        return positive_loss, negative_loss, loss
-
-
-    def rotate_loss(self, positive_score, negative_score, subsampling_weight, args):
-        if self.model_name != 'ComplEx':
-            negative_score = self.gamma.item() - negative_score
-            positive_score = self.gamma.item() - positive_score
-
-        if args.negative_adversarial_sampling:
-            #In self-adversarial sampling, we do not apply back-propagation on the sampling weight
-            negative_score = (F.softmax(negative_score * args.adversarial_temperature, dim = 1).detach()
-                              * F.logsigmoid(-negative_score)).sum(dim = 1)
-        else:
-            negative_score = F.logsigmoid(-negative_score).mean(dim = 1)
-
-
-        positive_score = F.logsigmoid(positive_score).squeeze(dim = 1)
-
-        if args.uni_weight:
-            positive_sample_loss = - positive_score.mean()
-            negative_sample_loss = - negative_score.mean()
-        else:
-            positive_sample_loss = - (subsampling_weight * positive_score).sum()/subsampling_weight.sum()
-            negative_sample_loss = - (subsampling_weight * negative_score).sum()/subsampling_weight.sum()
-
-        loss = (positive_sample_loss + negative_sample_loss)/2
-
-        return positive_sample_loss, negative_sample_loss, loss
-
-    def custom_loss(self, positive_score, negative_score, subsampling_weight, args):
-        negative_score = self.gamma2 - negative_score                # model.gamma - negative_score
-
-        if args.negative_adversarial_sampling:
-            #In self-adversarial sampling, we do not apply back-propagation on the sampling weight
-            negative_score = (F.softmax(negative_score * args.adversarial_temperature, dim = 1).detach()
-                              * F.relu(negative_score)).sum(dim = 1)
-        else:
-            negative_score = F.relu(negative_score).mean(dim = 1)
-
-        positive_score = positive_score - self.gamma1
-        positive_score = F.relu(positive_score).squeeze(dim = 1)
-
-        if args.uni_weight:
-            positive_sample_loss = positive_score.mean()
-            negative_sample_loss = negative_score.mean()
-        else:
-            positive_sample_loss = (subsampling_weight * positive_score).sum()/subsampling_weight.sum()
-            negative_sample_loss = (subsampling_weight * negative_score).sum()/subsampling_weight.sum()
-
-        loss = (positive_sample_loss + negative_sample_loss)/2
-        return positive_sample_loss, negative_sample_loss, loss
-
-    def uncertain_loss(self, positive_score, negative_score, subsampling_weight, args):
-
-        if self.model_name != 'ComplEx':
-            negative_score = self.gamma.item() - negative_score
-            positive_score = positive_score - self.gamma.item()
-        else:
-            positive_score = -positive_score
-
-        xi = self.xi[self.idx].squeeze(2)
-        xi_neg = self.xi_neg[self.idx].squeeze(2)
-        xi1 = xi_neg.repeat(1, negative_score.size()[1])
-
+    def margin_ranking(self, positive_score, negative_score, subsampling_weight, args):
+        temploss = torch.relu(positive_score + self.gamma - negative_score)
+        adv = 1 - F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
         if args.negative_adversarial_sampling:
             # In self-adversarial sampling, we do not apply back-propagation on the sampling weight
-            negative_score = (F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
-                              * F.softplus(negative_score + xi1 ** 2)).sum(dim=1)
+            temploss = (adv * temploss).sum(dim=1)
         else:
-            negative_score = F.softplus(negative_score + xi1 ** 2).mean(dim=1)
-
-        positive_score = F.softplus(positive_score + xi ** 2).squeeze(dim=1)
-
-        temp_pos = torch.exp(-self.alpha * xi ** 2)
-        temp_neg = torch.exp(-self.alpha * xi1 ** 2)
-
-        exp = torch.tensor([1000.05]).cuda().float() * torch.sum(temp_pos) \
-              + torch.tensor([10.05]).cuda().float() * torch.sum(temp_neg)
+            temploss = temploss.mean(dim=1)
 
         if args.uni_weight:
             positive_sample_loss = positive_score.mean()
             negative_sample_loss = negative_score.mean()
         else:
-            positive_sample_loss = (subsampling_weight * positive_score).sum() / subsampling_weight.sum()
-            negative_sample_loss = (subsampling_weight * negative_score).sum() / subsampling_weight.sum()
+            positive_sample_loss = positive_score.mean()
+            negative_sample_loss = negative_score.mean()
 
-        loss = exp + (positive_sample_loss + negative_sample_loss) / 2
-        # print(self.half_margin)
-
+        loss = torch.mean(temploss)
         return positive_sample_loss, negative_sample_loss, loss
 
-
-    def Limit_Loss(self, positive_score, negative_score, subsampling_weight, args):
-        temploss = torch.relu(positive_score + self.gamma - negative_score) #+ self.lda*(positive_score-self.gamma2))
+    def limit_loss(self, positive_score, negative_score, subsampling_weight, args):
+        temploss = torch.relu(positive_score + self.gamma - negative_score) + torch.relu(self.lda*(positive_score-self.gamma2))
         adv = 1 - F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
         if args.negative_adversarial_sampling:
             # In self-adversarial sampling, we do not apply back-propagation on the sampling weight
@@ -893,6 +786,151 @@ class KGEModel(nn.Module):
 
         loss = self.lambda1 * torch.exp(-self.sigma * self.margin**2) + (positive_sample_loss + negative_sample_loss)/2
         return positive_sample_loss, negative_sample_loss, loss
+
+    def custom_loss(self, positive_score, negative_score, subsampling_weight, args):
+        negative_score = self.gamma2 - negative_score                # model.gamma - negative_score
+
+        if args.negative_adversarial_sampling:
+            #In self-adversarial sampling, we do not apply back-propagation on the sampling weight
+            negative_score = (F.softmax(negative_score * args.adversarial_temperature, dim = 1).detach()
+                              * F.relu(negative_score)).sum(dim = 1)
+        else:
+            negative_score = F.relu(negative_score).mean(dim = 1)
+
+        positive_score = positive_score - self.gamma1
+        positive_score = F.relu(positive_score).squeeze(dim = 1)
+
+        if args.uni_weight:
+            positive_sample_loss = positive_score.mean()
+            negative_sample_loss = negative_score.mean()
+        else:
+            positive_sample_loss = (subsampling_weight * positive_score).sum()/subsampling_weight.sum()
+            negative_sample_loss = (subsampling_weight * negative_score).sum()/subsampling_weight.sum()
+
+        loss = (positive_sample_loss + negative_sample_loss)/2
+        return positive_sample_loss, negative_sample_loss, loss
+
+    def rotate_loss(self, positive_score, negative_score, subsampling_weight, args):
+        if self.model_name != 'ComplEx':
+            negative_score = self.gamma.item() - negative_score
+            positive_score = self.gamma.item() - positive_score
+
+        if args.negative_adversarial_sampling:
+            #In self-adversarial sampling, we do not apply back-propagation on the sampling weight
+            negative_score = (F.softmax(negative_score * args.adversarial_temperature, dim = 1).detach()
+                              * F.logsigmoid(-negative_score)).sum(dim = 1)
+        else:
+            negative_score = F.logsigmoid(-negative_score).mean(dim = 1)
+
+
+        positive_score = F.logsigmoid(positive_score).squeeze(dim = 1)
+
+        if args.uni_weight:
+            positive_sample_loss = - positive_score.mean()
+            negative_sample_loss = - negative_score.mean()
+        else:
+            positive_sample_loss = - (subsampling_weight * positive_score).sum()/subsampling_weight.sum()
+            negative_sample_loss = - (subsampling_weight * negative_score).sum()/subsampling_weight.sum()
+
+        loss = (positive_sample_loss + negative_sample_loss)/2
+
+        return positive_sample_loss, negative_sample_loss, loss
+
+    def negative_likelihood(self, positive_score, negative_score, subsampling_weight, args):
+        if self.model_name != 'ComplEx':
+            negative_score = 1 * negative_score
+            positive_score = (-1) * positive_score
+
+        bigY = 0
+        negative_score = - F.logsigmoid(bigY * negative_score).mean
+        positive_score = - F.logsigmoid(bigY * positive_score).mean
+
+        lambdaOfTheta = 0
+        positive_sample_loss = (lambdaOfTheta + positive_score).sum()
+        negative_sample_loss = (lambdaOfTheta + negative_score).sum()
+
+        loss = (positive_sample_loss + negative_sample_loss)
+
+        return positive_sample_loss, negative_sample_loss, loss
+
+    def quate_loss(self, positive_score, negative_score, subsampling_weight, args):
+        negative_score = negative_score.view(1, -1).squeeze()
+        positive_score = positive_score.squeeze()
+        #print('positive score - ', positive_score)
+        #print('negative score - ', negative_score)
+        negative_loss = torch.mean(self.criterion(-negative_score))
+        positive_loss = torch.mean(self.criterion(positive_score))
+
+        regul1 = self.entity_embedding.norm(p = 1)**2
+        loss = positive_loss + negative_loss
+
+        return positive_loss, negative_loss, loss
+
+    def bce_logits_loss(self, positive_score, negative_score):
+        criterion = nn.BCEWithLogitsLoss(reduction = 'sum')
+        positive_score = positive_score.squeeze()
+        negative_score = negative_score.view(-1)
+        total = positive_score.numel() + negative_score.numel()
+        positive_loss = criterion(positive_score, torch.ones(positive_score.shape).cuda())
+        negative_loss = criterion(negative_score, torch.zeros(negative_score.shape).cuda())
+        loss = (positive_loss + negative_loss)/total
+        return positive_loss/positive_score.numel(), negative_loss/negative_score.numel(), loss
+
+    def ruge_loss(self, positive_score, negative_score, unlabeled_scores, soft_labels):
+        # TODO: add adversarial temperature??
+        positive_loss = self.criterion(positive_score, torch.ones(positive_score.shape).cuda())
+        negative_loss = self.criterion(negative_score, torch.zeros(negative_score.shape).cuda())
+        total_labeled = positive_score.numel() + negative_score.numel()
+
+        unlabeled_loss = self.criterion(unlabeled_scores.squeeze(), soft_labels.detach())
+
+        l2 = self.l2_regularizer()
+        l2 = self.entity_embedding.norm() + self.relation_embedding.norm()
+
+        loss = labeled_loss/total_labeled + unlabeled_loss.mean() + 0.0002*l2
+
+        loss = (positive_loss + negative_loss)/total_labeled + unlabeled_loss / unlabeled_scores.numel()
+        return positive_loss/positive_score.numel(), negative_loss/negative_score.numel(), unlabeled_loss/unlabeled_scores.numel(), loss
+
+    def uncertain_loss(self, positive_score, negative_score, subsampling_weight, args):
+
+        if self.model_name != 'ComplEx':
+            negative_score = self.gamma.item() - negative_score
+            positive_score = positive_score - self.gamma.item()
+        else:
+            positive_score = -positive_score
+
+        xi = self.xi[self.idx].squeeze(2)
+        xi_neg = self.xi_neg[self.idx].squeeze(2)
+        xi1 = xi_neg.repeat(1, negative_score.size()[1])
+
+        if args.negative_adversarial_sampling:
+            # In self-adversarial sampling, we do not apply back-propagation on the sampling weight
+            negative_score = (F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
+                              * F.softplus(negative_score + xi1 ** 2)).sum(dim=1)
+        else:
+            negative_score = F.softplus(negative_score + xi1 ** 2).mean(dim=1)
+
+        positive_score = F.softplus(positive_score + xi ** 2).squeeze(dim=1)
+
+        temp_pos = torch.exp(-self.alpha * xi ** 2)
+        temp_neg = torch.exp(-self.alpha * xi1 ** 2)
+
+        exp = torch.tensor([1000.05]).cuda().float() * torch.sum(temp_pos) \
+              + torch.tensor([10.05]).cuda().float() * torch.sum(temp_neg)
+
+        if args.uni_weight:
+            positive_sample_loss = positive_score.mean()
+            negative_sample_loss = negative_score.mean()
+        else:
+            positive_sample_loss = (subsampling_weight * positive_score).sum() / subsampling_weight.sum()
+            negative_sample_loss = (subsampling_weight * negative_score).sum() / subsampling_weight.sum()
+
+        loss = exp + (positive_sample_loss + negative_sample_loss) / 2
+        # print(self.half_margin)
+
+        return positive_sample_loss, negative_sample_loss, loss
+
 
     #------------------------------------------
     def predict_soft_labels(self, rules, use_cuda):
