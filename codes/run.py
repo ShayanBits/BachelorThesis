@@ -229,12 +229,12 @@ def set_logger(args):
     '''
     Write logs to checkpoint and console
     '''
-    timeStamp = datetime.now().strftime("_%d_%m_%Y__at_%H_%M")
+    timeStamp = datetime.now().strftime("_%Y_%m_%d__at_%H_%M")
 
     if args.do_train:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_' + args.model + timeStamp + '.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'train_' + args.model + '_' + args.loss + timeStamp + '.log')
     else:
-        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_' + args.model + timeStamp + '.log')
+        log_file = os.path.join(args.save_path or args.init_checkpoint, 'test_' + args.model + '_' + args.loss + timeStamp + '.log')
 
     logging.basicConfig(
         format='%(asctime)s %(levelname)-8s %(message)s',
