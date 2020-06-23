@@ -521,11 +521,15 @@ def run_grid(nentity, nrelation, train_triples,
 
                     kge_model.set_loss(args.loss)
                     logging.info(f'Model: {args.model}')
+                    logging.info(f'opt: {args.opt}')
+                    logging.info(f'batch size: {args.batch_size}')
                     logging.info(f'Data Path: {args.data_path}')
                     logging.info(f'#entity: {nentity}')
                     logging.info(f'#relation: {nrelation}')
                     logging.info(f'optimizer: {args.opt}')
                     logging.info(f'learning rate: {current_learning_rate}')
+                    logging.info(f'gamma: {args.gamma}')
+                    logging.info(f'hidden dimension: {args.hidden_dim}')
                     logging.info(f'loss: {args.loss}')
                     if args.inv:
                         logging.info(
