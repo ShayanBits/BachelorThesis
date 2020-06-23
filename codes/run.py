@@ -504,7 +504,7 @@ def run_grid(nentity, nrelation, train_triples,
                         nentity=nentity,
                         nrelation=nrelation,
                         ntriples=ntriples,
-                        hidden_dim=dim,
+                        hidden_dim=args.hidden_dim,
                         args=args
                     )
                     if 'inverse' in RULE_TYPES:
