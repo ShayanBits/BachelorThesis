@@ -477,7 +477,8 @@ def run_grid(nentity, nrelation, train_triples,
     if args.negative_adversarial_sampling:
         print('Temperature - ', args.adversarial_temperature);
 
-    info = f' Model - {args.model}\n opt - {args.opt}\n batch size - {args.batch_size}\n dataset - {args.data_path}\n lr - {current_learning_rate}\n gamma = {args.gamma}\n hidden dimension = {args.hidden_dim}\n'
+    info = f' Model - {args.model}\n opt - {args.opt}\n batch size - {args.batch_size}\n dataset - {args.data_path}\n ' \
+           f'lr - {current_learning_rate}\n gamma = {args.gamma}\n negative sample size= {args.negative_sample_size}\n hidden dimension = {args.hidden_dim}\n '
     info2 = f'Loss fnc - {args.loss}\n inv - {args.inv}\n impl - {args.impl}\n sym - {args.sym}\n eq - {args.eq}\n'
 
     print(info)
@@ -530,6 +531,7 @@ def run_grid(nentity, nrelation, train_triples,
                     logging.info(f'learning rate: {current_learning_rate}')
                     logging.info(f'gamma: {args.gamma}')
                     logging.info(f'hidden dimension: {args.hidden_dim}')
+                    logging.info(f'negative sample size: {args.negative_sample_size}')
                     logging.info(f'adversarial_temperature: {args.adversarial_temperature}')
                     logging.info(f'loss: {args.loss}')
                     if args.inv:
