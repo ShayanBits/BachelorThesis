@@ -530,6 +530,7 @@ def run_grid(nentity, nrelation, train_triples,
                     logging.info(f'learning rate: {current_learning_rate}')
                     logging.info(f'gamma: {args.gamma}')
                     logging.info(f'hidden dimension: {args.hidden_dim}')
+                    logging.info(f'adversarial_temperature: {args.adversarial_temperature}')
                     logging.info(f'loss: {args.loss}')
                     if args.inv:
                         logging.info(
