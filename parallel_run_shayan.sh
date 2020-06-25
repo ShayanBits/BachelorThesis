@@ -41,7 +41,7 @@ for d in "${dims[@]}";do
                    echo  "following command is executed"
                    echo  $command
                    executed_flag="true"
-                   sleep 5
+                   sleep 15
                    break
                fi
                sleep 5
