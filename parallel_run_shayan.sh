@@ -46,6 +46,7 @@ done
 done
 done
 done
+done
 
 wait
 echo "all executed commands are finished"
