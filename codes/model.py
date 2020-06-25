@@ -714,13 +714,13 @@ class KGEModel(nn.Module):
     # -------------------------------LOSS FUNCTIONS--------------------------------------------
 
     def margin_ranking(self, positive_score, negative_score, subsampling_weight, args):
-        tempLoss = torch.relu(positive_score + self.gamma - negative_score)
-        adv = F.softmax(negative_score * args.adversarial_temperature, dim=1).detach()
+        tempLoss = torch.max(positive_score - negative_score,  - self.gamma)
+        adv = F.softmax(-negative_score * args.adversarial_temperature, dim=-1).detach()
         if args.negative_adversarial_sampling:
             # In self-adversarial sampling, we do not apply back-propagation on the sampling weight
-            tempLoss = (adv * tempLoss).sum(dim=1)
+            tempLoss = (adv * tempLoss).sum(dim=-1).mean() + self.gamma
         else:
-            tempLoss = tempLoss.mean(dim=1)
+            tempLoss = tempLoss.mean() + self.gamma
 
         if args.uni_weight:
             positive_sample_loss = positive_score.mean()

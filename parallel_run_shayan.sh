@@ -14,8 +14,8 @@ max_steps=400000
 
 CODE_PATH="codes"
 DATA_PATH="data/FB15k"
-SAVE_PATH="models/$model/$dataset"
 loss_func=("margin_ranking")
+SAVE_PATH="models/$model/$loss_func/$dataset"
 
 echo "starting grid run on all variables"
 
