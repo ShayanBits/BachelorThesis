@@ -28,10 +28,10 @@ for d in "${dims[@]}";do
         for neg in "${negs[@]}";do
           for loss in "${loss_func[@]}";do
             executed_flag="false"
-            while [[ ${executed_flag} != "true" ]];do
+            while [ $executed_flag != "true" ];do
             for cpu_number in [0-3];do
                available_mem=$(nvidia-smi --query-gpu=memory.free --format=csv -i ${cpu_number})
-               if ${available_mem} -gt 1980; then
+               if [[ ${available_mem} -gt 1980 ]];then
                    echo "free memory of GPU $cpu_number: $available_mem"
                    command="CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss"
 #                   CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss &
