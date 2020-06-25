@@ -29,7 +29,7 @@ for d in "${dims[@]}";do
           for loss in "${loss_func[@]}";do
             executed_flag="false"
             while [ $executed_flag != "true" ];do
-            for cpu_number in {0..3};do
+            for cpu_number in {0..2};do
                available_mem=$(nvidia-smi --query-gpu=memory.free --format=csv -i ${cpu_number})
 #               extract the integer value in MB
                available_mem=${available_mem//[^0-9]/}
