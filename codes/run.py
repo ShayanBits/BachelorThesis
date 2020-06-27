@@ -715,11 +715,6 @@ def main(args):
     else:
         logging.info('NO INJECTION')
 
-    logging.info(f'Model: {args.model}')
-    logging.info(f'Data Path: {data_dir}')
-    logging.info(f'#entity: {nentity}')
-    logging.info(f'#relation: {nrelation}')
-
     train_triples = read_triple(os.path.join(data_dir, 'train.txt'), entity2id, relation2id)
     logging.info(f'#train: {len(train_triples)}')
     valid_triples = read_triple(os.path.join(data_dir, 'valid.txt'), entity2id, relation2id)
