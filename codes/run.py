@@ -548,7 +548,8 @@ def run_grid(nentity, nrelation, train_triples,
                             f'using equality rules: eps = {kge_model.epsilon_eq}, weight = {kge_model.rule_weight["equality"]}')
                     logging.info('Model Parameter Configuration:')
                     for name, param in kge_model.named_parameters():
-                        logging.info(
+                        if name != "gamma":
+                            logging.info(
                             f'Parameter {name}: {str(param.size())}, require_grad = {str(param.requires_grad)}')
                     logging.info(f'Loss function {args.loss}')
                     if args.cuda:

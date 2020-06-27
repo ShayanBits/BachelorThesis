@@ -23,7 +23,12 @@ import glob
 import pandas as pd
 import re
 
-extract_information = ["file name", "Model", "loss", "learning rate", "MRR", "MR", "Hit@1", "Hit@3", "hit@10"]
+extract_information = ["file name", "Model", "Data Path", "#entity", "#relation", "#train",
+                       "#valid", "opt", "#test", "batch size","learning rate", "gamma",
+                       "hidden dimension", "negative sample size", "adversarial_temperature",
+                       "loss", "MRR", "MR", "HITS@1", "HITS@3", "HITS@10"]
+
+special_information = ["MRR", "MR", "HITS@1", "HITS@3", "HITS@10"]
 
 dirname = os.path.dirname(__file__)
 relPathToLogs = "../Results/RotatE/margin_ranking/FB15k/"
@@ -61,9 +66,14 @@ def updateExcelFile(pathToLogs):
             for line in logFile:
                 for phrase in extract_information:
                     if phrase in line:
-                        value = re.search(rf"{phrase}: ?.*", line)
-                        if value is not None:
-                            keyValue[phrase] = value.group()[phrase.__len__() + 2:]
+                        if phrase in special_information:
+                            value = re.search(r": \d*\.?\d+", line)
+                            if value is not None:
+                                keyValue[phrase] = value.group()[2:]
+                        else:
+                            value = re.search(rf"{phrase}: ?.*", line)
+                            if value is not None:
+                                keyValue[phrase] = value.group()[phrase.__len__() + 2:]
 
             updatedDataFreame = appendRow(keyValue)
             saveResultAsExcel(updatedDataFreame)
