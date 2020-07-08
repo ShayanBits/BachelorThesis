@@ -17,7 +17,7 @@
 
 # Set the max number of threads to use for programs using OpenMP. Should be <= ppn. Does nothing if the program doesn't use OpenMP.
 export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
-OUTFILE="shayan-test-output"
+OUTFILE="shayan-test-output.log"
 /home/shsh829c/DIR/scratch/shsh829c-KGE_Pattern_scratch/KGE_Pattern/parallel_run_shayan.sh  > "$OUTFILE"
 
 exit 0
