@@ -31,17 +31,14 @@ extract_information = ["file name", "Model", "Data Path", "#entity", "#relation"
 special_information = ["MRR", "MR", "HITS@1", "HITS@3", "HITS@10"]
 
 dirname = os.path.dirname(__file__)
-relPathToLogs = "../Results/RotatE/margin_ranking/FB15k/"
+relPathToLogs = "../models/RotatE/margin_ranking/FB15k/"
 
 pathToLogs = os.path.join(dirname, relPathToLogs, '*.log')
 
 pathToExcel = os.path.join(dirname, "../results/results.xlsx")
 
-currentSheet = pd.read_excel(pathToExcel, sheet_name=0)
-
 
 def saveResultAsExcel(dataFrame):
-    # writer = pd.ExcelWriter(pathToExcel, engine='xlsxwriter')
     dataFrame.to_excel(pathToExcel, index=False)
 
 
@@ -54,6 +51,7 @@ def appendRow(keyValue):
             completeRow[key] = ""
 
     newRow = pd.DataFrame([completeRow.values()], columns=completeRow.keys())
+    currentSheet = pd.read_excel(pathToExcel, sheet_name=0)
     updatedSheet = currentSheet.append(newRow, ignore_index=True)
     return updatedSheet
 
@@ -63,6 +61,7 @@ def updateExcelFile(pathToLogs):
         with open(os.path.join(filename), 'r') as logFile:
             keyValue = {"file name": os.path.basename(logFile.name)}
             logFile = logFile.readlines()
+            skip_second_gamma = False
             for line in logFile:
                 for phrase in extract_information:
                     if phrase in line:
@@ -71,12 +70,17 @@ def updateExcelFile(pathToLogs):
                             if value is not None:
                                 keyValue[phrase] = value.group()[2:]
                         else:
-                            value = re.search(rf"{phrase}: ?.*", line)
+                            # REMOVE NEX IF WHEN YOU GET RID OF SECOND GAMMA IN LOGS
+                            if phrase == 'gamma' and skip_second_gamma is False:
+                                skip_second_gamma = True
+                                value = re.search(rf"{phrase}: ?.*", line)
+                            elif phrase != 'gamma':
+                                value = re.search(rf"{phrase}: ?.*", line)
                             if value is not None:
                                 keyValue[phrase] = value.group()[phrase.__len__() + 2:]
 
-            updatedDataFreame = appendRow(keyValue)
-            saveResultAsExcel(updatedDataFreame)
+        updatedDataFreame = appendRow(keyValue)
+        saveResultAsExcel(updatedDataFreame)
 
 
 updateExcelFile(pathToLogs)
