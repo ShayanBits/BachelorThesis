@@ -66,7 +66,10 @@ def updateExcelFile(pathToLogs):
                 for phrase in extract_information:
                     if phrase in line:
                         if phrase in special_information:
-                            value = re.search(r": \d*\.?\d+", line)
+                            if phrase == 'HITS@1' and "HITS@10" in line:
+                                continue
+                            else:
+                                value = re.search(r": \d*\.?\d+", line)
                             if value is not None:
                                 keyValue[phrase] = value.group()[2:]
                         else:

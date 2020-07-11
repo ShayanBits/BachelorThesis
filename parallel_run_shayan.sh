@@ -14,7 +14,7 @@ max_steps=400000
 
 CODE_PATH="codes"
 DATA_PATH="data/FB15k"
-loss_func=("margin_ranking")
+loss_func=("rotate")
 SAVE_PATH="models/$model/$loss_func/$dataset"
 
 executed_flag="false"
