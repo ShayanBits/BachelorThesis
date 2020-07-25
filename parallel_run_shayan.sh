@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 dims=(50 1000)
-gamma=(1 5 10 20 30 40 50 100)
+#gamma=(1 5 10 20 30 40 50 100)
+gamma=(30 40 50 100)
 temperature=1
 lrs=(0.01  0.05  0.1)
 batch_sizes=(512 1024)

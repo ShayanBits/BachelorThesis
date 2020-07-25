@@ -31,7 +31,7 @@ extract_information = ["file name", "Model", "Data Path", "#entity", "#relation"
 special_information = ["MRR", "MR", "HITS@1", "HITS@3", "HITS@10"]
 
 dirname = os.path.dirname(__file__)
-relPathToLogs = "../models/RotatE/margin_ranking/FB15k/"
+relPathToLogs = "../models/RotatE/rotate/FB15k/"
 
 pathToLogs = os.path.join(dirname, relPathToLogs, '*.log')
 
