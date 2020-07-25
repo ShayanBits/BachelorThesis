@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-dims=(50 1000)
+#dims=(50 1000)
+dims=(1000)
 #gamma=(1 5 10 20 30 40 50 100)
 gamma=(30 40 50 100)
 temperature=1
@@ -15,7 +16,7 @@ max_steps=400000
 
 CODE_PATH="codes"
 DATA_PATH="data/FB15k"
-loss_func=("rotate")
+loss_func=("margin_ranking")
 SAVE_PATH="models/$model/$loss_func/$dataset"
 
 executed_flag="false"
