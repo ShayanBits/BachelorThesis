@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-#dims=(50 1000)
-dims=(1000)
+dims=(50 1000)
 gamma=(1 5 10 20 30 40 50 100)
 temperature=1
 lrs=(0.01  0.05  0.1)
@@ -30,7 +29,7 @@ for d in "${dims[@]}";do
           for loss in "${loss_func[@]}";do
             executed_flag="false"
             while [ $executed_flag != "true" ];do
-            for cpu_number in {0..1};do
+            for cpu_number in {0..3};do
                available_mem=$(nvidia-smi --query-gpu=memory.free --format=csv -i ${cpu_number})
 #               extract the integer value in MB
                available_mem=${available_mem//[^0-9]/}
@@ -38,11 +37,11 @@ for d in "${dims[@]}";do
                if [[ ${available_mem} -gt 1980 ]];then
                    echo "free memory of GPU $cpu_number: $available_mem"
                    command="CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss"
-                   CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss &&
+                   CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss &
                    echo  "following command is executed"
                    echo  $command
                    executed_flag="true"
-                   sleep 30
+                   sleep 15
                    break
                fi
                sleep 5
