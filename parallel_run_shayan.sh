@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-#dims=(50 1000)
-dims=(1000)
-#gamma=(1 5 10 20 30 40 50 100)
-gamma=(30 40 50 100)
+dims=(50 1000)
+gamma=(1 5 10 20 30 40 50 100)
 temperature=1
 lrs=(0.01  0.05  0.1)
 batch_sizes=(512 1024)
@@ -16,7 +14,7 @@ max_steps=400000
 
 CODE_PATH="codes"
 DATA_PATH="data/FB15k"
-loss_func=("margin_ranking")
+loss_func=("rotate")
 SAVE_PATH="models/$model/$loss_func/$dataset"
 
 executed_flag="false"
@@ -31,7 +29,7 @@ for d in "${dims[@]}";do
           for loss in "${loss_func[@]}";do
             executed_flag="false"
             while [ $executed_flag != "true" ];do
-            for cpu_number in {0..3};do
+            for cpu_number in {0..2};do
                available_mem=$(nvidia-smi --query-gpu=memory.free --format=csv -i ${cpu_number})
 #               extract the integer value in MB
                available_mem=${available_mem//[^0-9]/}
@@ -43,7 +41,7 @@ for d in "${dims[@]}";do
                    echo  "following command is executed"
                    echo  $command
                    executed_flag="true"
-                   sleep 15
+                   sleep 30
                    break
                fi
                sleep 5
