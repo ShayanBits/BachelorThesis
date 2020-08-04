@@ -12,7 +12,6 @@ train_with_groundings="false"
 plot="false"
 max_steps=400000
 
-BASE_PATH="/home/shsh829c/DIR/scratch/shsh829c-KGE_Pattern_scratch/KGE_Pattern/"
 CODE_PATH="codes"
 DATA_PATH="data/FB15k"
 LOSS_FUNC=("rotate")
@@ -37,8 +36,8 @@ for d in "${dims[@]}";do
 #               echo "available mem is: $available_mem"
                if [[ ${available_mem} -gt 1980 ]];then
                    echo "free memory of GPU $cpu_number: $available_mem"
-                   command="CUDA_VISIBLE_DEVICES=$cpu_number python3 $BASE_PATH/$CODE_PATH/run.py --do_grid --cuda --do_test --data_path $BASE_PATH/$DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $BASE_PATH/$SAVE_PATH -de --loss $loss"
-                   CUDA_VISIBLE_DEVICES=$cpu_number python3 $BASE_PATH/$CODE_PATH/run.py --do_grid --cuda --do_test --data_path $BASE_PATH/$DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $BASE_PATH/$SAVE_PATH -de --loss $loss &
+                   command="CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss"
+                   CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss &
                    echo  "following command is executed"
                    echo  $command
                    executed_flag="true"
