@@ -15,7 +15,10 @@
 #SBATCH -A p_ml_nimi
 
 module load PyTorch
-module load sklearn
+virtualenv --no-download $SLURM_TMPDIR/env
+source $SLURM_TMPDIR/env/bin/activate
+pip install --no-index --upgrade pip
+pip install --no-index -r ../requirements.txt
 #source /home/shsh829c/venv/kge/bin/activate
 
 # Set the max number of threads to use for programs using OpenMP. Should be <= ppn. Does nothing if the program doesn't use OpenMP.
