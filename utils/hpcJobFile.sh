@@ -15,6 +15,7 @@
 #SBATCH -A p_ml_nimi
 
 module load PyTorch
+module load sklearn
 #source /home/shsh829c/venv/kge/bin/activate
 
 # Set the max number of threads to use for programs using OpenMP. Should be <= ppn. Does nothing if the program doesn't use OpenMP.
