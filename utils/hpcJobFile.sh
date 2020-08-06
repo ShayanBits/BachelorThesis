@@ -14,9 +14,7 @@
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH -A p_ml_nimi
 
-module load SciPy-bundle/2019.10-intel-2019b-Python-3.7.4
 module load PyTorch
-module load scikit-learn
 #source /home/shsh829c/venv/kge/bin/activate
 
 # Set the max number of threads to use for programs using OpenMP. Should be <= ppn. Does nothing if the program doesn't use OpenMP.
