@@ -23,6 +23,6 @@ OUTFILE="shayan-test-output.log"
 
 
 echo $PWD
-/home/shsh829c/DIR/scratch/shsh829c-KGE_Pattern_scratch/KGE_Pattern/parallel_run_shayan.sh  > "$OUTFILE"
+/scratch/ws/1/shsh829c-KGE/KGE_Pattern/utils/parallel_run_shayan.sh  > "$OUTFILE"
 
 exit 0
