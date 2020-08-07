@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-dims=(50 1000)
+#dims=(50 1000)
+dims=(50)
 gamma=(1 5 10 20 30 40 50 100)
 temperature=1
 lrs=(0.01  0.05  0.1)
