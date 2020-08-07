@@ -12,10 +12,10 @@ train_with_groundings="false"
 plot="false"
 max_steps=400000
 
-CODE_PATH="codes"
-DATA_PATH="data/FB15k"
+CODE_PATH="../codes"
+DATA_PATH="../data/FB15k"
 LOSS_FUNC=("rotate")
-SAVE_PATH="models/$model/$LOSS_FUNC/$dataset"
+SAVE_PATH="../models/$model/$LOSS_FUNC/$dataset"
 
 executed_flag="false"
 
