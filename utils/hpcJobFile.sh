@@ -2,14 +2,15 @@
 
 #Submit this script with: sbatch thefilename
 
-#SBATCH --time=10:00:00   # walltime
-#SBATCH --nodes=1   # number of nodes
-#SBATCH --gres=gpu:4
-#SBATCH --ntasks=1      # limit to one node
+#SBATCH --time=1:00:00   # walltime
+#SBATCH --nodes=1   # number of nodes -N
+#SBATCH --gres=gpu:2
+#SBATCH --ntasks=1      # limit to one node --ntasks-per-node
 #SBATCH --cpus-per-task=1  # number of processor cores (i.e. threads)
 #SBATCH --partition=gpu2
 #SBATCH --mem-per-cpu=10000M   # memory per CPU core
 #SBATCH -J "test-shayan"   # job name
+#SBATCH -o test-shayan-slurm-%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH -A p_ml_nimi
