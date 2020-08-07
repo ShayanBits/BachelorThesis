@@ -14,12 +14,8 @@
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH -A p_ml_nimi
 
-module load PyTorch
-virtualenv --no-download $SLURM_TMPDIR/env
-source $SLURM_TMPDIR/env/bin/activate
-pip install --no-index --upgrade pip
-pip install --no-index -r ../requirements.txt
-#source /home/shsh829c/venv/kge/bin/activate
+
+source /home/shsh829c/venv/env1/bin/activate
 
 # Set the max number of threads to use for programs using OpenMP. Should be <= ppn. Does nothing if the program doesn't use OpenMP.
 export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
