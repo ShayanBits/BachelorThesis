@@ -4,7 +4,7 @@
 
 #SBATCH --time=1:00:00   # walltime
 #SBATCH --nodes=1   # number of nodes
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:4
 #SBATCH --tasks-per-node=16
 #SBATCH --ntasks=1      # limit to one node
 #SBATCH --cpus-per-task=1  # number of processor cores (i.e. threads)
