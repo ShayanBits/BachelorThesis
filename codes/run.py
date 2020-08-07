@@ -681,7 +681,9 @@ def main(args):
 
     # for debug: use the following data_dir to access the correct data
     current_dir = os.path.dirname(__file__)
-    data_dir = current_dir + "/../" + args.data_path
+    # data_dir = current_dir + "/../" + args.data_path
+    # next line changed for HPC since args.data_path will be absolute path to data
+    data_dir = args.data_path
 
     with open(os.path.join(data_dir, 'entities.dict')) as fin:
         entity2id = dict()
