@@ -2,7 +2,7 @@
 
 #Submit this script with: sbatch thefilename
 
-#SBATCH --time=1:00:00   # walltime
+#SBATCH --time=10:00:00   # walltime
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --gres=gpu:4
 #SBATCH --tasks-per-node=16
