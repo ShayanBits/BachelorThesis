@@ -6,7 +6,6 @@
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --ntasks=1      # limit to one node
 #SBATCH --cpus-per-task=1  # number of processor cores (i.e. threads)
-#SBATCH --partition=haswell64
 #SBATCH --mem-per-cpu=62000M   # memory per CPU core
 #SBATCH -J "test-shayan"   # job name
 #SBATCH -o test-shayan-slurm-%j.out
