@@ -22,7 +22,11 @@ This readme file is created to ease and accelerate working with TU-Dresden HPCs 
 
 ## General information 
 Before working with HPCs you need to know that unlike other normal servers, which are normally being used at universities or privately, you cannot run your `bash` or `python`programs directly in the terminal console. Instead, every script needs to be submitted as a [Job](#job) in order to get executed. These jobs will then get queued depending on their resource usages and executed one after each other on the computing machines(Nodes). The system responsible for hardware allocation and queueing the jobs is called batch system. On TUD-HPCs the batch system [SLURM](https://doc.zih.tu-dresden.de/hpc-wiki/bin/view/Compendium/Slurm) is monitoring these tasks. 
+ 
+ 
  **NOTE That:** depending on your job and specific hardware you might need for it, it can take up to 2 days for the job to be started. 
+ 
+ 
  **NOTE That:** A job can also be submitted by `$ srun` command directly from the console but it is used more for testing purposes
  In order to be able follow also in the code, in this documentation I will be mostly talking about the following files:
  - `parallel_run_shayan.sh`
@@ -47,7 +51,9 @@ You can start a ssh connection with the following command to the TUD Servers aft
  
  - ### Allocating working space
  Compute nodes, does not have access to your user directory, that's why it is necessary to allocate a special directory which is accessible for the compute nodes.
- There are different type of those directories(in HPC documentation they are called workespaces). All different workspaces and their specs can be found in [this page](https://doc.zih.tu-dresden.de/hpc-wiki/bin/view/Compendium/WorkSpaces). Each one of these working spaces store files for a specific amount of time and after that they archive them and then delete them. No worries since you can extend the time for some times. For us the best workspace is `scratch`. It keeps data for 100 Days and it can be extended 10 times. In the next paragraph it is explained how to create one and access it.
+ There are different type of those directories(in HPC documentation they are called workespaces). Different workspaces and their specs can be found in [this page](https://doc.zih.tu-dresden.de/hpc-wiki/bin/view/Compendium/WorkSpaces). Each one of these working spaces store files for a specific amount of time and after that they archive them and then delete them. No worries since you can extend the time. For this specific example `parallel_run_shayan.sh` the best workspace is `scratch`. It keeps data for 100 Days and it can be extended 10 times. In the next paragraph it is explained how to create one and access it.
+
+
  A scratch workspace can be allocated with the following command in your user directory.
  `$ ws_allocate -F scratch -r 10 -m name.lastname@tu-dresden.de NameOfTheDirectory01 100`
  
@@ -59,7 +65,7 @@ You can start a ssh connection with the following command to the TUD Servers aft
 **NOTE:** A directory can be extended with the following command:
 `$ ws_extend -F scratch NameOfTheDirectory01 100`
 
-**NOTE:** All working workspaces which are created by an account can be listed with the command: `ws_list` and it look like:
+**NOTE:** All working workspaces which are created by an account can be listed with the command: `$ ws_list` and it look like:
 ```bash
 id: KGE_Rotate_rotate
      workspace directory  : /scratch/ws/1/username-KGE_Rotate_rotate
@@ -82,11 +88,23 @@ It is important to know where your workspaces are build since you have to submit
 It is possible to create a shortcut to all you live workspaces into you user home directory with the following command: 
 `ws_register DIR` Then all of your workspaces will be listed under `/DIR/` in your home directory. Bare in mind that every time these directory changes you need to run the command `ws_register DIR` again to update the actual directories as well.
 
+
+- ### Cloning the code
+After creating the [workspace](#Allocating-working-space), a git repository can be cloned into the workspace directory. To make the process easier a job file can be created into the git branch and only submitted in the workspace.
+
+- ### Submitting Job
+in this example, a job file is available in `/utils` directory with the name `hpcJobFile.sh`. This file can be submitted with `$ sbatch hpcJobFile.sh` in the following directory: `/scratch/ws/1/username-KGE/KGE_Pattern/utils` where:
+- `username` is the TUD username
+- `KGE` is the workspace name
+- `KGE_Pattern` is the git repository name
+
+To check your workspace path check end of [allocating working space](#Allocating-working-space) section.
+
+
  
  - ### job monitor
  Slowly you should be able to submit your first test job. There is a good option provided from TUD HPCs which let you to observe ongoing and every job which is executed before by a user. You can see the Job Monitoring page [here](https://selfservice.zih.tu-dresden.de/l/index.php/hpcportal/jobmonitoring//zih/jobs). You need to log in in order to visit the page. 
- 
- - important links 
+
 
 ## Things are different
 
