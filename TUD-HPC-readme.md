@@ -32,7 +32,7 @@ Before working with HPCs you need to know that unlike other normal servers, whic
  - `parallel_run_shayan.sh`
  - `utils/hpcJobFile.sh`
  
- ## Get Started!
+ ## Getting Started!
  
  - ### Python3
  This  step is optional but I usually do this.
