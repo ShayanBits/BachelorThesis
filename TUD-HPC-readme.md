@@ -18,7 +18,7 @@
 
 
 ## About this document 
-This readme file is created to ease and accelerate working with TU-Dresden HPCs for others. It describe a step-by-step process to run a specific example rather than go deep and discuss why & how it works like this. It has been tried to add additional resources to every point which needs more background information.
+This readme file is created to ease and accelerate working with TU-Dresden HPCs for others. It describe the process of running a specific example on HPCs clusters rather than go deep and discuss why & how it works like this. Additional resources have been added to every point which needs more background information. Feel free to contact me in case of questions or corrections @ [shayan.shsh@yahoo.com](shayan.shsh@yahoo.com)
 
 ## General information 
 Before working with HPCs you need to know that unlike other normal servers, which are normally being used at universities or privately, you cannot run your `bash` or `python`programs directly in the terminal console. Instead, every script needs to be submitted as a [Job](#job) in order to get executed. These jobs will then get queued depending on their resource usages and executed one after each other on the computing machines(Nodes). The system responsible for hardware allocation and queueing the jobs is called batch system. On TUD-HPCs the batch system [SLURM](https://doc.zih.tu-dresden.de/hpc-wiki/bin/view/Compendium/Slurm) is monitoring these tasks. 
