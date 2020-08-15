@@ -14,6 +14,9 @@
 #SBATCH -A p_ml_nimi
 #SBATCH --array=1-478
 
+
+
+
 source /home/shsh829c/venv/env1/bin/activate
 
 srun $(head -n $SLURM_ARRAY_TASK_ID commands.txt | tail -n 1)
