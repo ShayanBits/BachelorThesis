@@ -2,7 +2,7 @@
 # Table of contents
 * [About this document](#About-this-document)
 * [General information](#general-information)
-* [Get Started!](#Get-Started!)
+* [Getting Started!](#Getting-Started!)
     * [Python3](#Python3)
     * [log in](#log-in)
     * [Allocating working space](#Allocating-working-space)
@@ -11,7 +11,7 @@
 * [Things are different](#Things-are-different)
     * [Where are the console logs?](#Where-are-the-console-logs?)
     * [What about my python packages?](#What-about-my-python-packages?)
-    * [Execution permission](#Execution-permission:)
+    * [Execution permission](#Execution-permission)
 * [Job](#job)
     * [An example of a job file](#An-example-of-a-job-file)
 * [Important Links](#Important-Links)
@@ -128,7 +128,7 @@ Since the script, in this example `parallel_run_shayan.sh ` does not run within 
 Now that we have a venv under `/envs/env01` it can be activated for any job by being added as following in a job file: `source /home/username/envs/env01/bin/activate` where `username` is the given username from TUD with which you ssh to their servers.
  
 
- #### Execution permission:
+ #### Execution permission
  Compute nodes need to be granted the permission to execute the scripts which are used in the job file. for the following [job](#An-example-of-a-job-file), permissions are needed to be adjusted for `parallel_run_shayan.sh` as follows:
  
  `$ chmod +x parallel_run_shayan.sh`
