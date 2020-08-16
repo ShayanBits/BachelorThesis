@@ -7,6 +7,8 @@
     * [log in](#log-in)
     * [Allocating working space](#Allocating-working-space)
     * [Working space shortcut](#Working-space-shortcut)
+    * [Cloning the code](#Cloning-the-code)
+    * [Submitting Job](#Submitting-Job)
     * [job monitor](#job-monitor)
 * [Things are different](#Things-are-different)
     * [Where are the console logs](#Where-are-the-console-logs)
