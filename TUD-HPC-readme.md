@@ -122,7 +122,7 @@ Since the script, in this example `parallel_run_shayan.sh ` does not run within 
 
  ------------
  If you are not familiar to creating a venv and installing packages here is a short guide:
- 1. After [logging in](#log-in) to your user account on HPC run the following command in the terminal: `$ python -m venv envs/env01`
+ 1. After [logging in](#log-in) to your user account on HPC run the following command in the terminal: `$ python3 -m venv envs/env01`
  2. Activate the just created venv with: `$ source envs/env01/bin/activate`
  3. install all your package dependencies with: `$ pip install torch torchvision numpy sklearn` here `torch`, `torchvision`, `numpy` and `sklearn` are the packages which are needed to run `run.py` in this repository.
  ------------
