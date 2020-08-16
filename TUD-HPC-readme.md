@@ -2,15 +2,15 @@
 # Table of contents
 * [About this document](#About-this-document)
 * [General information](#general-information)
-* [Getting Started!](#Getting-Started!)
+* [Getting Started](#Getting-Started)
     * [Python3](#Python3)
     * [log in](#log-in)
     * [Allocating working space](#Allocating-working-space)
     * [Working space shortcut](#Working-space-shortcut)
     * [job monitor](#job-monitor)
 * [Things are different](#Things-are-different)
-    * [Where are the console logs?](#Where-are-the-console-logs?)
-    * [What about my python packages?](#What-about-my-python-packages?)
+    * [Where are the console logs](#Where-are-the-console-logs)
+    * [What about my python packages](#What-about-my-python-packages)
     * [Execution permission](#Execution-permission)
 * [Job](#job)
     * [An example of a job file](#An-example-of-a-job-file)
@@ -32,7 +32,7 @@ Before working with HPCs you need to know that unlike other normal servers, whic
  - `parallel_run_shayan.sh`
  - `utils/hpcJobFile.sh`
  
- ## Getting Started!
+ ## Getting Started
  
  - ### Python3
  This  step is optional but I usually do this.
@@ -110,11 +110,11 @@ To check your workspace path check end of [allocating working space](#Allocating
 
 Yes, on a HPC cluster almost everything is different than the normal environment we used to work with. here I go through the point that might confuse one when starting to work with hpc:
 
-#### Where are the console logs?
+#### Where are the console logs
 
 It is common to use console logs/prints to debug a program. On HPC clusters though it is not possible to see a live console log. Everything your script writes on console will end up in your output file. Check `#SBATCH -o` flag in [job](#job)s for more information.
 
-#### What about my python packages?
+#### What about my python packages
 
 Since the script, in this example `parallel_run_shayan.sh ` does not run within your user working directory, if you use any python packages, you need to install them in an virtual environment(venv) and activate this in your job file before your script gets executed. Check the job example file in [job](#job) section to see how a venv can get activate.
 
