@@ -6,7 +6,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1      # limit to one node
 #SBATCH --cpus-per-task=1  # number of processor cores (i.e. threads)
-#SBATCH --mem-per-cpu=40000M   # memory per CPU core
+#SBATCH --mem-per-cpu=10000M   # memory per CPU core
 #SBATCH -J "fb17k-new-grid"   # job name
 #SBATCH -o fb17k-new-grid-%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
