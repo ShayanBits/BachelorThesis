@@ -1,21 +1,27 @@
 #!/usr/bin/env bash
 
-dims=(10 100 1000)
+#dims=(10 100 1000)
+#gamma=(1 10 20 30 40 50)
+#temperature=1
+#lrs=(0.01 0.05 0.1)
+#batch_sizes=(1024)
+#negs=(10 100 1000)
+dims=(100)
 gamma=(1 10 20 30 40 50)
 temperature=1
 lrs=(0.01 0.05 0.1)
 batch_sizes=(1024)
-negs=(10 100 1000)
+negs=(100)
+model="TransE"
+#declare -a model=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
 dataset="FB15k"
-model="RotatE"
 train_with_groundings="false"
 plot="false"
 max_steps=400000
 
 CODE_PATH="../codes"
 DATA_PATH="../data/FB15k"
-LOSS_FUNC=("rotate")
-SAVE_PATH="../models/$model/$LOSS_FUNC/$dataset"
+LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
 
 executed_flag="false"
 
@@ -30,6 +36,7 @@ for d in "${dims[@]}";do
             executed_flag="false"
 #            while [ $executed_flag != "true" ];do
             for gpu_number in 0;do
+                SAVE_PATH="../models/$model/$loss/$dataset"
 #               available_mem=$(nvidia-smi --query-gpu=memory.free --format=csv -i ${gpu_number})
 #               extract the integer value in MB
 #               available_mem=${available_mem//[^0-9]/}
