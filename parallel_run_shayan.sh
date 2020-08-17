@@ -10,17 +10,17 @@ dims=(100)
 gamma=(1 10 20 30 40 50)
 temperature=1
 lrs=(0.01 0.05 0.1)
-batch_sizes=(1024)
+batch_sizes=(512)
 negs=(100)
 model="TransE"
 #declare -a model=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
-dataset="FB15k"
+dataset="wn18"
 train_with_groundings="false"
 plot="false"
 max_steps=400000
 
 CODE_PATH="../codes"
-DATA_PATH="../data/FB15k"
+DATA_PATH="../data/$dataset"
 LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
 
 executed_flag="false"
