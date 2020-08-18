@@ -12,8 +12,8 @@ temperature=1
 lrs=(0.01 0.05 0.1)
 batch_sizes=(512)
 negs=(100)
-model="TransE"
-#declare -a model=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
+#model="TransE"
+models=("RotatE" "ComplEx" "QuatE" "Dismult")
 dataset="wn18rr"
 train_with_groundings="false"
 plot="false"
@@ -27,6 +27,7 @@ executed_flag="false"
 
 echo "starting grid run on all variables"
 
+for model in "${models[@]}";do
 for d in "${dims[@]}";do
   for g in "${gamma[@]}";do
     for lr in "${lrs[@]}";do
@@ -54,6 +55,7 @@ for d in "${dims[@]}";do
 #               fi
 #               sleep 5
 #            done
+done
 done
 done
 done
