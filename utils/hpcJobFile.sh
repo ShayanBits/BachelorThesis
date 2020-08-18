@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Submit this script with: sbatch thefilename
-#SBATCH --time=16:00:00   # walltime
+#SBATCH --time=26:00:00   # walltime
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1      # limit to one node
@@ -15,7 +15,7 @@
 #SBATCH --array=1-54
 
 
-source /home/sava096c/envs/env01/bin/activate
+source /home/shsh829c/venv/env1/bin/activate
 
 srun $(head -n $SLURM_ARRAY_TASK_ID commands.txt | tail -n 1)
 
