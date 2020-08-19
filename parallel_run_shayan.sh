@@ -12,21 +12,22 @@ temperature=1
 lrs=(0.01 0.05 0.1)
 batch_sizes=(1024)
 negs=(100)
-model="TransE"
-#declare -a model=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
+#model="TransE"
+models=("RotatE" "ComplEx" "QuatE" "Dismult")
 dataset="FB15k"
 train_with_groundings="false"
 plot="false"
 max_steps=400000
 
 CODE_PATH="../codes"
-DATA_PATH="../data/FB15k"
+DATA_PATH="../data/$dataset"
 LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
 
 executed_flag="false"
 
 echo "starting grid run on all variables"
 
+for model in "${models[@]}";do
 for d in "${dims[@]}";do
   for g in "${gamma[@]}";do
     for lr in "${lrs[@]}";do
@@ -54,6 +55,7 @@ for d in "${dims[@]}";do
 #               fi
 #               sleep 5
 #            done
+done
 done
 done
 done
