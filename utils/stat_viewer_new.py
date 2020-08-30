@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -55,7 +57,7 @@ reflexive_list = []
 all_training_triple_other = all_training_triple.copy()
 # count = 0
 
-# for reflexive
+###########################################for reflexive################################################
 reflexive_triples = all_training_triple.loc[all_training_triple[0] == all_training_triple[2]]
 reflexive_triples = pd.DataFrame(np.array(reflexive_triples))
 unique_relations_reflexive_triples = np.array(list(set(list(reflexive_triples[1]))))
@@ -179,66 +181,58 @@ print(len(count_list_symmetric))
 
 write_dir = os.path.join(data_dir, 'symmetric.txt')
 write_to_txt_file(write_dir, count_list_symmetric)
-#############################################################################################################
-# original_array = np.array(original_list)
-# original_hrt_triple_for_symmetric = pd.DataFrame(np.array(original_array))
-# symmetric_array = np.array(symmetric_list)
-# symmetric_array_relation_list = pd.DataFrame(symmetric_array)[1]
-# symmetric_array_df = pd.DataFrame(symmetric_array)
-# unique_relations_symmetric_triples = np.array(list(set(list(symmetric_array_df[1]))))
-#
-#
-# count =0
-# symmetric_triple_per_relation = []
-# #Check how many hrt and trh exist for the above mentioned symmetric relation r
-# for unique_relations_symmetric_triple in unique_relations_symmetric_triples:
-#     #print(count)
-#     symmetric_array_place_holder = symmetric_array_df.loc[symmetric_array_df[1]==unique_relations_symmetric_triple]
-#     symmetric_array_place_holder = np.array(symmetric_array_place_holder)
-#     # print(unique_relations_reflexive_triple, ' : ', len(place_holder_relation_triple))
-#     stat_count_per_relation_symmetric = np.array([unique_relations_symmetric_triple, int(len(symmetric_array_place_holder))])
-#     symmetric_triple_per_relation.append(stat_count_per_relation_symmetric)
-#
-# symmetric_triple_per_relation = pd.DataFrame(np.array(symmetric_triple_per_relation))
-# symmetric_triple_per_relation[1] = symmetric_triple_per_relation[1].astype(str).astype(int)
-# symmetric_triple_per_relation_sorted = symmetric_triple_per_relation.sort_values(by=1, ascending=False)
-#
-# #In the test set
-# symmetric_relation_array = np.array(symmetric_triple_per_relation_sorted[0])
-#
-# count_list_symmetric = np.zeros((0,3))
-#
-# for symmetric_relation in symmetric_relation_array:
-#     place_holder_relation_test_triple = all_test_triple.loc[all_test_triple[1]==symmetric_relation]
-#     place_holder_relation_test_triple_array = np.array(place_holder_relation_test_triple)
-#     count_list_symmetric = np.vstack([count_list_symmetric , place_holder_relation_test_triple_array])
-#
-# print('total number of symmetric exist in the training set: ')
-# print(len(symmetric_array_df))
-# print('symmetric per relation exist in the training set: ')
-# print(symmetric_triple_per_relation_sorted)
-# print('for each R in the training set for which symmetric exist, how many triple exist in test set: ')
-# print(len(count_list_symmetric))
-#
-# #Save such test triples
-# #data_dir = '/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/wn18'
-# write_dir = os.path.join(data_dir,'test_symmetric.txt')
-# write_to_txt_file(write_dir, count_list_symmetric)
-'''
-count =0
-#Check how many hrt and trh exist for the above mentioned symmetric relation r
-for unique_relations_symmetric_triple in unique_relations_symmetric_triples:
-    #print(count)
-    symmetric_array_place_holder = symmetric_array_df.loc[symmetric_array_df[1]==unique_relations_symmetric_triple]
-    all_hrt = original_hrt_triple_for_symmetric.loc[original_hrt_triple_for_symmetric[1]==unique_relations_symmetric_triple]
-    all_hrt_array = np.array(all_hrt)
-    for an_hrt in all_hrt_array:
-        trh = np.array([an_hrt[2],an_hrt[1],an_hrt[0]])
-        x = all_training_triple.loc[(trh[0]==all_training_triple[0]) & (trh[1]==all_training_triple[1])&(trh[2]==all_training_triple[2])]
-        print(len(x))
-    count+=1
-    #all_trh =
-'''
+
+#######################################For one-to-many###################################################################
+all_relations_train = list(set(list(all_training_triple[1])))
+
+summarizeInfo = pd.DataFrame(columns=["relation", "min", "max", "avg", "count"])
+relation_count = {}
+premise_list = []
+conclusion_list = []
+training_triples = list(zip([h for h in all_training_triple[0]],
+                            [r for r in all_training_triple[1]],
+                            [t for t in all_training_triple[2]]))
+
+observed_triples = {}
+for triple in training_triples:
+    observed_triples[triple[0], triple[1], triple[2]] = 1
+
+count = 0
+for relation in all_relations_train:
+    the_N_for_each_h_and_r: List[int] = []
+    for idx, triple in enumerate(training_triples):
+        count = 0
+        if triple != ('', '', ''):
+            if triple[1] == relation:
+                # relation = triple[1]
+                for idx2, triple2 in enumerate(training_triples):
+                    if triple[0] == triple2[0] and triple2[1] == relation and triple[2] != triple2[2]:
+                        training_triples[idx2] = ('', '', '')
+                        count += 1
+                # if relation in relation_count.keys() and count != 0:
+                #     relation_count[relation] += count
+                # elif count != 0:
+                #     relation_count[relation] = count
+                if count != 0:
+                    the_N_for_each_h_and_r.append(count)
+    if len(the_N_for_each_h_and_r) > 0:
+        minCount = min(the_N_for_each_h_and_r)
+        maxCount = max(the_N_for_each_h_and_r)
+        avg = sum(the_N_for_each_h_and_r) / len(the_N_for_each_h_and_r)
+        avg = round(avg, 2)
+        total_count = sum(the_N_for_each_h_and_r)
+    else:
+        minCount = maxCount = avg = total_count = 0
+    frame = pd.DataFrame([[relation, minCount, maxCount, avg, total_count]],
+                         columns=["relation", "min", "max", "avg", "count"])
+    summarizeInfo = summarizeInfo.append(frame)
+    total_count = 0
+
+# one_to_many_triple_per_relation = pd.DataFrame(list(relation_count.items()),columns=['relation', 'number of one-to-many relatioins'])
+one_to_many_triple_per_relation = summarizeInfo
+pathToInverseStats = os.path.join(data_dir, "one_to_many_stats_train.xlsx")
+one_to_many_triple_per_relation.to_excel(pathToInverseStats, index=False)
+
 #######################################For implication###################################################################
 # for fb15k and fb15k237
 # implication_grounding = pd.read_table('/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/FB15k-237/groundings_implication_original.txt', header=None)
@@ -337,7 +331,6 @@ implication_triple_per_relation_sorted.plot(kind='bar')
 plotSavePath = os.path.join(data_dir, "implication-plot.png")
 plt.gcf().savefig(plotSavePath)
 plt.show()
-
 
 print('for each premise R in the training set for which implication exist, how many triple exist in test set: ')
 print(len(count_list_implication))
@@ -453,29 +446,29 @@ print(len(count_list_inverse))
 write_dir = os.path.join(data_dir, 'inverse.txt')
 write_to_txt_file(write_dir, count_list_inverse)
 
-# count = 0
-#
-# for symmetric_array_row in symmetric_array:
-#     print(count)
-#     all_hrt =  all_training_triple.loc[(all_training_triple[0]==symmetric_array_row[2])&(all_training_triple[1]==symmetric_array_row[1])&(all_training_triple[2]==symmetric_array_row[0])]
-#     all_trh =  all_training_triple.loc[(all_training_triple[0]==symmetric_array_row[0])&(all_training_triple[1]==symmetric_array_row[1])&(all_training_triple[2]==symmetric_array_row[2])]
-#     '''
-#     hrt = all_training_triple[
-#             (all_training_triple[0] == symmetric_array_row[2]) & (all_training_triple[1] == symmetric_array_row[1]) & (
-#                     all_training_triple[2] == symmetric_array_row[0])]
-#     trh = all_training_triple[
-#         (all_training_triple[0] == symmetric_array_row[0]) & (all_training_triple[1] == symmetric_array_row[1]) & (
-#                 all_training_triple[2] == symmetric_array_row[2])]
-#     '''
-#     print(all_hrt)
-#     #print('hrt: ', len(all_hrt))
-#     #print('trh: ', len(all_trh))
-#     count+=1
-#     print('###############################')
-#
-#
-# from itertools import combinations
-#
-# L = [1, 2, 3, 4]
-#
-# x = [ comb for comb in combinations(L, 2)]
+count = 0
+
+for symmetric_array_row in symmetric_array:
+    print(count)
+    all_hrt =  all_training_triple.loc[(all_training_triple[0]==symmetric_array_row[2])&(all_training_triple[1]==symmetric_array_row[1])&(all_training_triple[2]==symmetric_array_row[0])]
+    all_trh =  all_training_triple.loc[(all_training_triple[0]==symmetric_array_row[0])&(all_training_triple[1]==symmetric_array_row[1])&(all_training_triple[2]==symmetric_array_row[2])]
+    '''
+    hrt = all_training_triple[
+            (all_training_triple[0] == symmetric_array_row[2]) & (all_training_triple[1] == symmetric_array_row[1]) & (
+                    all_training_triple[2] == symmetric_array_row[0])]
+    trh = all_training_triple[
+        (all_training_triple[0] == symmetric_array_row[0]) & (all_training_triple[1] == symmetric_array_row[1]) & (
+                all_training_triple[2] == symmetric_array_row[2])]
+    '''
+    print(all_hrt)
+    #print('hrt: ', len(all_hrt))
+    #print('trh: ', len(all_trh))
+    count+=1
+    print('###############################')
+
+
+from itertools import combinations
+
+L = [1, 2, 3, 4]
+
+x = [ comb for comb in combinations(L, 2)]
