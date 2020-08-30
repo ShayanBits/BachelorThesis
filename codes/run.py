@@ -151,7 +151,7 @@ def override_config(args):
     Override model and data configuration
     '''
 
-    with open(os.path.join(args.init_checkpoint, 'config.json'), 'r') as fjson:
+    with open(os.path.join(args.init_checkpoint, 'config0.json'), 'r') as fjson:
         argparse_dict = json.load(fjson)
 
     args.countries = argparse_dict['countries']
@@ -308,7 +308,9 @@ def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model
     if args.init_checkpoint:
         # Restore model from checkpoint directory
         logging.info(f'Loading checkpoint {args.init_checkpoint}...')
-        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint'))
+        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint', idx))
+        # make sure to replace next line with above line when using cpu
+        # checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint0'), map_location= 'cpu')
         init_step = checkpoint['step']
         kge_model.load_state_dict(checkpoint['model_state_dict'])
         current_learning_rate = checkpoint['current_learning_rate']
