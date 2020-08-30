@@ -7,13 +7,13 @@
 #batch_sizes=(1024)
 #negs=(10 100 1000)
 dims=(100)
-gamma=(1 10 20 30 40 50)
+gamma=(50)
 temperature=1
-lrs=(0.01 0.05 0.1)
+lrs=(0.05)
 batch_sizes=(512)
 negs=(100)
 #model="TransE"
-models=("ComplEx")
+models=("TransE")
 #declare -a model=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
 dataset="wn18"
 train_with_groundings="false"
@@ -22,7 +22,8 @@ max_steps=400000
 
 CODE_PATH="../codes"
 DATA_PATH="../data/$dataset"
-LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
+LOSS_FUNC=("rotate")
+#LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
 
 executed_flag="false"
 

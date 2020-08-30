@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Submit this script with: sbatch thefilename
-#SBATCH --time=20:00:00   # walltime
+#SBATCH --time=05:00:00   # walltime
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1      # limit to one node
@@ -12,7 +12,7 @@
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH -A p_ml_nimi
-#SBATCH --array=1-35
+#SBATCH --array=1-17
 
 
 source /home/sava096c/envs/env01/bin/activate
