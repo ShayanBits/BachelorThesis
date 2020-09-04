@@ -3,8 +3,6 @@ from typing import List
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from operator import itemgetter, attrgetter
-from itertools import combinations
 import os
 
 
@@ -33,44 +31,35 @@ def write_to_txt_file(path, data):
 
 
 dirname = os.path.dirname(__file__)
-dataset = "wn18rr"
+dataset = "FB15k-237"
 relPathToData = "../data/"
 
 data_dir = os.path.join(dirname, relPathToData, dataset)
-# data_dir = '/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/wn18rr'
-# all_training_triple= pd.read_csv('/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/wn18rr/train.txt', dtype=str, header=None, sep='\t')
-# all_test_triple = pd.read_csv('/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/wn18rr/test.txt', dtype=str, header=None, sep='\t')
 
 
 pathToTrainTriples = os.path.join(data_dir, "train.txt")
 all_training_triple = pd.read_table(pathToTrainTriples, header=None)
-# all_training_triple = pd.read_table('/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/wn18rr/train.txt', header=None)
 
 pathToTestTriples = os.path.join(data_dir, "test.txt")
 all_test_triple = pd.read_table(pathToTestTriples, header=None)
-# all_test_triple = pd.read_table('/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/wn18rr/test.txt', header=None)
 
 original = np.array([])
 symmtetric_var = np.array([])
 original_list = []
 reflexive_list = []
 all_training_triple_other = all_training_triple.copy()
-# count = 0
 
 ###########################################for reflexive################################################
 reflexive_triples = all_training_triple.loc[all_training_triple[0] == all_training_triple[2]]
 reflexive_triples = pd.DataFrame(np.array(reflexive_triples))
 unique_relations_reflexive_triples = np.array(list(set(list(reflexive_triples[1]))))
 
-# reflexive_triples = np.array(reflexive_triples)
 
 
 reflexive_triple_per_relation = []
 for unique_relations_reflexive_triple in unique_relations_reflexive_triples:
-    # print(unique_relations_reflexive_triple)
     place_holder_relation_triple = reflexive_triples.loc[reflexive_triples[1] == unique_relations_reflexive_triple]
     place_holder_relation_triple = np.array(place_holder_relation_triple)
-    # print(unique_relations_reflexive_triple, ' : ', len(place_holder_relation_triple))
     stat_count_per_relation = np.array([unique_relations_reflexive_triple, int(len(place_holder_relation_triple))])
     reflexive_triple_per_relation.append(stat_count_per_relation)
 
@@ -96,7 +85,6 @@ print('for each R in the training set for which ERE exist, how many triple exist
 print(len(count_list_reflexive))
 
 # Save such test triples
-# data_dir = '/media/mirza/Samsung_T5/Mojtaba_new/KnowledgeGraphEmbedding-masterAdaptive/data/wn18'
 write_dir = os.path.join(data_dir, 'reflexive.txt')
 write_to_txt_file(write_dir, count_list_reflexive)
 
@@ -119,7 +107,6 @@ for triple in training_triples:
     try:
         exists = observed_triples[triple[2], triple[1], triple[0]]
         print('original_triple ', triple)
-        # symmetric = np.array([triple[2], triple[1], triple[0]])
         premise = np.array([triple[0], triple[1], triple[2]])
         conclusion = np.array([triple[2], triple[1], triple[0]])
         print('premise ', premise)
@@ -140,7 +127,6 @@ symmetric_triple_per_relation = []
 for premise in premise_df_unique_relation:
     symmetric_array_place_holder = premise_df.loc[premise_df[1] == premise]
     symmetric_array_place_holder = np.array(symmetric_array_place_holder)
-    # print(unique_relations_reflexive_triple, ' : ', len(place_holder_relation_triple))
     stat_count_per_relation_symmetric = np.array(
         [premise, int(len(symmetric_array_place_holder))])
     symmetric_triple_per_relation.append(stat_count_per_relation_symmetric)
@@ -150,7 +136,6 @@ symmetric_triple_per_relation[1] = symmetric_triple_per_relation[1].astype(str).
 symmetric_triple_per_relation_sorted = symmetric_triple_per_relation.sort_values(by=1, ascending=False)
 
 # in the test set:
-# In the test set
 symmetric_relation_array = np.array(symmetric_triple_per_relation_sorted[0])
 
 count_list_symmetric = np.zeros((0, 3))
@@ -231,7 +216,7 @@ for relation in all_relations_train:
 # one_to_many_triple_per_relation = pd.DataFrame(list(relation_count.items()),columns=['relation', 'number of one-to-many relatioins'])
 one_to_many_triple_per_relation = summarizeInfo
 pathToInverseStats = os.path.join(data_dir, "one_to_many_stats_train.xlsx")
-one_to_many_triple_per_relation.to_excel(pathToInverseStats, index=False)
+one_to_many_triple_per_relation.to_excel(pathToInverseStats, index=False , columns=False)
 
 #######################################For implication###################################################################
 # for fb15k and fb15k237
