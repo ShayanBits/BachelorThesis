@@ -34,6 +34,7 @@ for pattern in patterns:
         patternResultsTable = patternResultsTable.sort_values('count', ascending=False)
 
     top_n_relations = patternResultsTable.iloc[0:3, 0]
+    # top_n_relations = patternResultsTable.iloc[0:N, 0]
     top_n_relations = list(top_n_relations.values.flatten())
     new_test_triples = pd.DataFrame()
     for relation in top_n_relations:
