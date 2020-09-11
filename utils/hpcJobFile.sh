@@ -7,8 +7,8 @@
 #SBATCH --ntasks=1      # limit to one node
 #SBATCH --cpus-per-task=1  # number of processor cores (i.e. threads)
 #SBATCH --mem-per-cpu=10000M   # memory per CPU core
-#SBATCH -J "FB15k-237-new-grid-fillup-checkpoint"   # job name
-#SBATCH -o FB15k-237-new-grid-fillup-checkpoint-%j.out
+#SBATCH -J "FB15k-237-new-grid-fillup-checkpoint2"   # job name
+#SBATCH -o FB15k-237-new-grid-fillup-checkpoint2-%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH -A p_ml_nimi
