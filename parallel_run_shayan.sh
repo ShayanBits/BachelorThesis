@@ -6,14 +6,14 @@
 #lrs=(0.01 0.05 0.1)
 #batch_sizes=(1024)
 #negs=(10 100 1000)
-dims=(100)
-gamma=(1 10 20 30 40 50)
+dims=(1)
+gamma=(30)
 temperature=1
-lrs=(0.01 0.05 0.1)
+lrs=(0.1)
 batch_sizes=(1024)
 negs=(100)
-#model="TransE"
-models=("DistMult")
+#model=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
+models=("TransE")
 dataset="FB15k"
 train_with_groundings="false"
 plot="false"
@@ -21,7 +21,8 @@ max_steps=400000
 
 CODE_PATH="../codes"
 DATA_PATH="../data/$dataset"
-LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
+LOSS_FUNC=("rotate")
+#LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
 
 executed_flag="false"
 
@@ -45,7 +46,7 @@ for d in "${dims[@]}";do
 #               if [[ ${available_mem} -gt 1980 ]];then
 #                   echo "free memory of GPU $gpu_number: $available_mem"
 #                   command="CUDA_VISIBLE_DEVICES=$gpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH/dim-$d/gamma-$g/learning-rate-$lr/batch-size-$b/negative-sample-size-$neg/ -de --loss $loss"
-                   command="python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH/dim-$d/gamma-$g/learning-rate-$lr/batch-size-$b/negative-sample-size-$neg/ -de --loss $loss"
+                   command="python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH/dim-$d/gamma-$g/learning-rate-$lr/batch-size-$b/negative-sample-size-$neg/ -de --loss $loss --init_checkpoint $SAVE_PATH/dim-$d/gamma-$g/learning-rate-$lr/batch-size-$b/negative-sample-size-$neg/"
 #                   srun --time=1:00:00 --nodes=1 --gres=gpu:1 --ntasks=1 --cpus-per-task=1 --partition=gpu2 -J "test-shayan" -o "test-shayan-slurm-%j.log" --mail-user="shayan.shahpasand@mailbox.tu-dresden.de" --mail-type="ALL" -A "p_ml_nimi" source /home/shsh829c/venv/env1/bin/activate OUTFILE="shayan-test-output.log"  CUDA_VISIBLE_DEVICES=$cpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH -de --loss $loss > "$OUTFILE" &
                    echo  "following command is executed"
                    echo  $command >> utils/commands.txt
