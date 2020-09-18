@@ -6,15 +6,15 @@
 #lrs=(0.01 0.05 0.1)
 #batch_sizes=(1024)
 #negs=(10 100 1000)
-dims=(100)
-gamma=(50)
+dims=(1000)
+gamma=(1 10 20 30 40 50)
 temperature=1
-lrs=(0.05)
+lrs=(0.01 0.05 0.1)
 batch_sizes=(512)
 negs=(100)
 #model="TransE"
-models=("TransE")
-#declare -a model=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
+#models=("TransE")
+models=("TransE" "RotatE" "ComplEx" "QuatE" "DistMult")
 dataset="wn18"
 train_with_groundings="false"
 plot="false"
@@ -22,8 +22,8 @@ max_steps=400000
 
 CODE_PATH="../codes"
 DATA_PATH="../data/$dataset"
-LOSS_FUNC=("rotate")
-#LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
+#LOSS_FUNC=("rotate")
+LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
 
 executed_flag="false"
 email_address="shayan.shahpasand@mailbox.tu-dresden.de"
@@ -52,7 +52,7 @@ for d in "${dims[@]}";do
 #               if [[ ${available_mem} -gt 1980 ]];then
 #                   echo "free memory of GPU $gpu_number: $available_mem"
 #                   command="CUDA_VISIBLE_DEVICES=$gpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH/dim-$d/gamma-$g/learning-rate-$lr/batch-size-$b/negative-sample-size-$neg/ -de --loss $loss"
-                   command="python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $COMPLETE_SAVE_PATH -de --loss $loss --init_checkpoint $COMPLETE_SAVE_PATH"
+                   command="python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $COMPLETE_SAVE_PATH -de --loss $loss"
                    srunCommand="srun --time=2:00:00 --nodes=1 --gres=gpu:1 --ntasks=1 --cpus-per-task=1 --partition=gpu2-interactive -J $job_name -o "$job_name-slurm-%j.log" --mail-user=$email_address --mail-type="ALL" -A "p_ml_nimi" source /home/sava096c/envs/env01/bin/activate python3 $command"
                    echo  "following command is executed"
                    echo  $command >> utils/commands.txt
