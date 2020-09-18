@@ -16,7 +16,7 @@
 #SBATCH --array=1-270
 
 
-source /home/sava096c/envs/env01/bin/activate
+source /home/shsh829c/venv/env1/bin/activate
 
 srun $(head -n $SLURM_ARRAY_TASK_ID commands.txt | tail -n 1)
 
