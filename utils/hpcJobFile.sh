@@ -5,15 +5,14 @@
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1      # limit to one node
-#SBATCH --cpus-per-task=1  # number of processor cores (i.e. threads)
+#SBATCH --cpus-per-task=5  # number of processor cores (i.e. threads)
 #SBATCH --mem-per-cpu=10000M   # memory per CPU core
-#SBATCH -J "wn18rr-new-grid-round-two"   # job name
-#SBATCH -o wn18rr-new-grid-round-two%j.out
+#SBATCH -J "wn18rr-new-grid-round-test5cpu"   # job name
+#SBATCH -o wn18rr-new-grid-round-test5cpu%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
-#SBATCH --reservation=p_ml_nimi_105
 #SBATCH -A p_ml_nimi
-#SBATCH --array=1-270
+#SBATCH --array=1-1
 
 
 source /home/shsh829c/venv/env1/bin/activate
