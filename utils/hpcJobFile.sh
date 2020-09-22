@@ -5,8 +5,8 @@
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1      # limit to one node
-#SBATCH --cpus-per-task=6  # number of processor cores (i.e. threads)
-#SBATCH --mem-per-cpu=10000M   # memory per CPU core
+#SBATCH --cpus-per-task=4  # number of processor cores (i.e. threads)
+#SBATCH --mem-per-cpu=3875M   # memory per CPU core
 #SBATCH -J "wn18rr-new-grid-round-three"   # job name
 #SBATCH -o wn18rr-new-grid-round-three%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
