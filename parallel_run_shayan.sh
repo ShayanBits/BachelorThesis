@@ -6,13 +6,14 @@
 #lrs=(0.01 0.05 0.1)
 #batch_sizes=(1024)
 #negs=(10 100 1000)
-dims=(100)
+dims=(10 100 1000)
 gamma=(1 10 20 30 40 50)
 temperature=1
 lrs=(0.01 0.05 0.1)
 batch_sizes=(1024)
-negs=(1000)
-models=("TransE" "RotatE" "ComplEx" "QuatE" "Dismult")
+#negs=(10 100 1000)
+negs=(10)
+models=("TransE" "RotatE" "ComplEx" "QuatE" "DistMult")
 #models=("TransE")
 dataset="FB15k"
 train_with_groundings="false"
