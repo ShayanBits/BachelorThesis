@@ -866,6 +866,7 @@ def main(args):
         checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint0'))
         init_step = checkpoint['step']
         kge_model.load_state_dict(checkpoint['model_state_dict'])
+        current_learning_rate = checkpoint['current_learning_rate']
         if args.do_train:
             current_learning_rate = checkpoint['current_learning_rate']
             warm_up_steps = checkpoint['warm_up_steps']
