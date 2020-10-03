@@ -1,18 +1,18 @@
 #!/bin/bash
 
 #Submit this script with: sbatch thefilename
-#SBATCH --time=1:00:00   # walltime
+#SBATCH --time=0:30:00   # walltime
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1      # limit to one node
 #SBATCH --cpus-per-task=4  # number of processor cores (i.e. threads)
 #SBATCH --mem-per-cpu=3875M   # memory per CPU core
-#SBATCH -J "fb15k-test-symmetric"   # job name
-#SBATCH -o fb15k-test-symmetric%j.out
+#SBATCH -J "fb15k-test-symmetric-run"   # job name
+#SBATCH -o fb15k-test-symmetric-run%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH -A p_ml_nimi
-#SBATCH --array=1-1
+#SBATCH --array=1-162%20
 
 
 source /home/shsh829c/venv/env1/bin/activate
