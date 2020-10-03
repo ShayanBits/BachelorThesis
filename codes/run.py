@@ -958,6 +958,12 @@ def main(args):
     logging.info('gamma1 = %f' % kge_model.gamma1)
     logging.info('gamma2 = %f' % kge_model.gamma2)
     '''
+    if args.do_test:
+        logging.info('Evaluating on Test Dataset...')
+        model_module = kge_model.module if args.parallel else kge_model
+        metrics = model_module.test_step(kge_model, test_triples, all_true_triples, args)
+        log_metrics('Test', step, metrics)
+
     train_model(init_step, valid_triples, all_true_triples, kge_model, train_iterator, rule_iterators, args)
     # model_module = kge_model.module if args.parallel else kge_model
     # metrics = model_module.test_step(model_module, test_triples, all_true_triples, args)
@@ -970,11 +976,11 @@ def main(args):
         metrics = model_module.test_step(kge_model, valid_triples, all_true_triples, args)
         log_metrics('Valid', step, metrics)
 
-    if args.do_test:
-        logging.info('Evaluating on Test Dataset...')
-        model_module = kge_model.module if args.parallel else kge_model
-        metrics = model_module.test_step(kge_model, test_triples, all_true_triples, args)
-        log_metrics('Test', step, metrics)
+    # if args.do_test:
+    #     logging.info('Evaluating on Test Dataset...')
+    #     model_module = kge_model.module if args.parallel else kge_model
+    #     metrics = model_module.test_step(kge_model, test_triples, all_true_triples, args)
+    #     log_metrics('Test', step, metrics)
 
     if args.evaluate_train:
         logging.info('Evaluating on Training Dataset...')
