@@ -220,7 +220,7 @@ def read_triple(file_path, entity2id, relation2id):
     triples = []
     with open(file_path) as fin:
         for line in fin:
-            h, r, t = line.strip().split('\t')
+            h, r, t = line.strip().split()
             triples.append((entity2id[h], relation2id[r], entity2id[t]))
     return triples
 
