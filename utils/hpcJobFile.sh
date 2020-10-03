@@ -11,7 +11,6 @@
 #SBATCH -o fb15k-test-symmetric%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
-SBATCH --reservation=p_ml_nimi_105
 #SBATCH -A p_ml_nimi
 #SBATCH --array=1-2
 
