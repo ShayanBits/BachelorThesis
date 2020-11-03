@@ -220,7 +220,7 @@ def read_triple(file_path, entity2id, relation2id):
     triples = []
     with open(file_path) as fin:
         for line in fin:
-            h, r, t = line.strip().split('\t')
+            h, r, t = line.strip().split()
             triples.append((entity2id[h], relation2id[r], entity2id[t]))
     return triples
 
@@ -308,9 +308,9 @@ def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model
     if args.init_checkpoint:
         # Restore model from checkpoint directory
         logging.info(f'Loading checkpoint {args.init_checkpoint}...')
-        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint'+ idx))
+        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint' + idx))
         # make sure to replace next line with above line when using cpu
-        # checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint0'), map_location= 'cpu')
+        # checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint' + idx), map_location= 'cpu')
         init_step = checkpoint['step']
         kge_model.load_state_dict(checkpoint['model_state_dict'])
         current_learning_rate = checkpoint['current_learning_rate']
@@ -725,6 +725,7 @@ def main(args):
     valid_triples = read_triple(os.path.join(data_dir, 'valid.txt'), entity2id, relation2id)
     logging.info(f'#valid: {len(valid_triples)}')
     test_triples = read_triple(os.path.join(data_dir, 'symmetric_test.txt'), entity2id, relation2id)
+    logging.info(f'using symmetric test set')
     logging.info(f'#test: {len(test_triples)}')
 
     # All true triples
@@ -862,9 +863,10 @@ def main(args):
     if args.init_checkpoint:
         # Restore model from checkpoint directory
         logging.info('Loading checkpoint %s...' % args.init_checkpoint)
-        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint'))
+        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint0'))
         init_step = checkpoint['step']
         kge_model.load_state_dict(checkpoint['model_state_dict'])
+        current_learning_rate = checkpoint['current_learning_rate']
         if args.do_train:
             current_learning_rate = checkpoint['current_learning_rate']
             warm_up_steps = checkpoint['warm_up_steps']
@@ -957,6 +959,12 @@ def main(args):
     logging.info('gamma1 = %f' % kge_model.gamma1)
     logging.info('gamma2 = %f' % kge_model.gamma2)
     '''
+    if args.do_test:
+        logging.info('Evaluating on Test Dataset...')
+        model_module = kge_model.module if args.parallel else kge_model
+        metrics = model_module.test_step(kge_model, test_triples, all_true_triples, args)
+        log_metrics('Test', step, metrics)
+
     train_model(init_step, valid_triples, all_true_triples, kge_model, train_iterator, rule_iterators, args)
     # model_module = kge_model.module if args.parallel else kge_model
     # metrics = model_module.test_step(model_module, test_triples, all_true_triples, args)
@@ -969,11 +977,11 @@ def main(args):
         metrics = model_module.test_step(kge_model, valid_triples, all_true_triples, args)
         log_metrics('Valid', step, metrics)
 
-    if args.do_test:
-        logging.info('Evaluating on Test Dataset...')
-        model_module = kge_model.module if args.parallel else kge_model
-        metrics = model_module.test_step(kge_model, test_triples, all_true_triples, args)
-        log_metrics('Test', step, metrics)
+    # if args.do_test:
+    #     logging.info('Evaluating on Test Dataset...')
+    #     model_module = kge_model.module if args.parallel else kge_model
+    #     metrics = model_module.test_step(kge_model, test_triples, all_true_triples, args)
+    #     log_metrics('Test', step, metrics)
 
     if args.evaluate_train:
         logging.info('Evaluating on Training Dataset...')
