@@ -7,10 +7,22 @@ def write_to_txt_file(path, data):
     data.to_string(f, col_space=1, index=False,  header=False)
     f.close()
 
+
+def read_table(file_path):
+    triples = []
+    with open(file_path) as fin:
+        for line in fin:
+            h, r, t = line.strip().split()
+            triples.append((h, r, t))
+    return triples
+
+
+
 dirname = os.path.dirname(__file__)
-dataset = "wn18rr"
+dataset = "FB15k-237"
 # pattern = "implication"
 patterns = ["one_to_many", "implication", "inverse", "symmetric"]
+# patterns = ["symmetric"]
 relPathToData = "../data/"
 N = 3
 
@@ -19,7 +31,8 @@ data_dir = os.path.join(dirname, relPathToData, dataset)
 # Load excel file of the pattern
 
 pathToTestTriples = os.path.join(data_dir, "test.txt")
-all_test_triple = pd.read_table(pathToTestTriples, header=None)
+all_test_triple = read_table(pathToTestTriples)
+all_test_triple = pd.DataFrame(all_test_triple)
 
 all_relations_test = list(set(list(all_test_triple[1])))
 
@@ -43,4 +56,3 @@ for pattern in patterns:
 
     write_dir = os.path.join(data_dir, pattern + '_test.txt')
     write_to_txt_file(write_dir, new_test_triples)
-
