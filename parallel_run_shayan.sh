@@ -13,11 +13,11 @@ max_steps=400000
 
 RUN_ON_GPU=false
 AVAIL_GPUS=4
+FREE_MEM_THRESHOLD=2000
 
 CODE_PATH="../codes"
 DATA_PATH="../data/$dataset"
 
-EMAIL_ADDRESS="shayan.shahpasand@mailbox.tu-dresden.de"
 
 echo "starting grid run on all variables"
 
@@ -37,7 +37,7 @@ for d in "${dims[@]}";do
 #               extract the integer value in MB
                 available_mem=${available_mem//[^0-9]/}
                 echo "available mem is: $available_mem"
-                if [[ ${available_mem} -gt 1980 ]];then
+                if [[ ${available_mem} -gt $FREE_MEM_THRESHOLD ]];then
                    echo "free memory of GPU $gpu_number: $available_mem"
                    command="CUDA_VISIBLE_DEVICES=$gpu_number python3 $CODE_PATH/run.py --do_grid --cuda --do_test --data_path $DATA_PATH --model $model -d $d --negative_sample_size $neg --batch_size $b --gamma $g --adversarial_temperature $temperature --negative_adversarial_sampling -lr $lr --max_steps $max_steps -save $SAVE_PATH/dim-$d/gamma-$g/learning-rate-$lr/batch-size-$b/negative-sample-size-$neg/ -de --loss $loss"
                    $command
