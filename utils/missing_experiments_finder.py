@@ -24,12 +24,13 @@ import pandas as pd
 field_to_check = "HITS@1"
 
 dataset = "fb15k"
+dataset_directory_name = "FB15k"
 patterns = ["symmetric", "inverse", "implication", "one_to_many"]
 # patterns = ["default", "symmetric", "inverse", "implication", "one_to_many"]
 pattern = "one_to_many"
 
 code_path = "../codes"
-data_path = f"../data/{dataset.upper()}"
+data_path = f"../data/{dataset_directory_name}"
 
 absolute_path_to_excel = "/Volumes/SHAYAN/BT/results/"
 
@@ -50,7 +51,7 @@ for index, row in rows_without_result.iterrows():
     learning_rate = row['learning rate']
     loss = row['loss']
 
-    SAVE_PATH = f"../models/{model}/{loss}/{dataset.upper()}"
+    SAVE_PATH = f"../models/{model}/{loss}/{dataset_directory_name}"
     COMPLETE_SAVE_PATH = f"{SAVE_PATH}/dim-{hidden_dimension}/gamma-{gamma}/learning-rate-{learning_rate}/batch-size-{batch_size}/negative-sample-size-{negs}/"
 
     # command = f"python3 {code_path}/run.py --do_grid --cuda --do_test --data_path {data_path} --model {model} -d {hidden_dimension} --negative_sample_size {negs} --batch_size {batch_size} --gamma {gamma} --adversarial_temperature {temperature} --negative_adversarial_sampling -lr {learning_rate} --max_steps 400000 -save {COMPLETE_SAVE_PATH} -de --loss {loss} --init_checkpoint {COMPLETE_SAVE_PATH} \n"
