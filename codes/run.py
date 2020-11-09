@@ -308,7 +308,7 @@ def train_model(init_step, valid_triples, all_true_triples, kge_model, adv_model
     if args.init_checkpoint:
         # Restore model from checkpoint directory
         logging.info(f'Loading checkpoint {args.init_checkpoint}...')
-        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint0'))
+        checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint' + idx))
         # make sure to replace next line with above line when using cpu
         # checkpoint = torch.load(os.path.join(args.init_checkpoint, 'checkpoint' + idx), map_location= 'cpu')
         init_step = checkpoint['step']
