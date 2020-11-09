@@ -2,13 +2,17 @@
 
 temperature=1
 batch_sizes=(1024)
-lrs=(0.01 0.05 0.1)
-dims=(10 100 1000)
-negs=(10 100 1000)
-gamma=(1 10 20 30 40 50)
+lrs=(0.05)
+#dims=(10 100 1000)
+dims=(1000)
+#negs=(10 100 1000)
+negs=(1000)
+gamma=(20)
 dataset="FB15k"
-models=("TransE" "RotatE" "ComplEx" "QuatE" "DistMult")
-LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
+#models=("TransE" "RotatE" "ComplEx" "QuatE" "DistMult")
+models=("TransE")
+LOSS_FUNC=("adaptive_margin")
+#LOSS_FUNC=("rotate" "margin_ranking" "adaptive_margin")
 max_steps=400000
 
 RUN_ON_GPU=false
