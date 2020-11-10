@@ -7,8 +7,8 @@
 #SBATCH --ntasks=1      # limit to one node
 #SBATCH --cpus-per-task=4  # number of processor cores (i.e. threads)
 #SBATCH --mem-per-cpu=3875M   # memory per CPU core
-#SBATCH -J "fb15k-57-run-inv"   # job name
-#SBATCH -o fb15k-57-run-inv-%j.out
+#SBATCH -J "fb15k-57-run-sym"   # job name
+#SBATCH -o fb15k-57-run-sym-%j.out
 #SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH --reservation=p_ml_nimi_137
