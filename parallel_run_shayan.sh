@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 temperature=1
-batch_sizes=(1024)
+batch_sizes=(512)
 lrs=(0.01 0.05 0.1)
 dims=(10 100 1000)
 negs=(10 100 1000)
