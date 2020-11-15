@@ -726,7 +726,6 @@ def main(args):
     logging.info(f'#valid: {len(valid_triples)}')
     test_triples = read_triple(os.path.join(data_dir, 'symmetric_test.txt'), entity2id, relation2id)
     logging.info(f'using symmetric test set')
-    logging.info(f'using non inverse negative samples')
     logging.info(f'#test: {len(test_triples)}')
 
     # All true triples
