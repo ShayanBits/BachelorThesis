@@ -9,14 +9,14 @@
 #SBATCH --mem-per-cpu=3875M   # memory per CPU core
 #SBATCH -J "fb15k237-new-grid-round-three"   # job name
 #SBATCH -o fb15k237-new-grid-round-three%j.out
-#SBATCH --mail-user=shayan.shahpasand@mailbox.tu-dresden.de   # email address
+#SBATCH --mail-user=mohtashim099@gmail.com   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
 #SBATCH --reservation=p_ml_nimi_105
 #SBATCH -A p_ml_nimi
-#SBATCH --array=1-1080
+#SBATCH --array=1-1
 
 
-source /home/shsh829c/venv/env1/bin/activate
+source /home/mial610c/venv/env1/bin/activate
 
 srun $(head -n $SLURM_ARRAY_TASK_ID commands.txt | tail -n 1)
 
