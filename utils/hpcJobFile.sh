@@ -11,7 +11,6 @@
 #SBATCH -o fb15k237-new-grid-round-three%j.out
 #SBATCH --mail-user=mohtashim099@gmail.com   # email address
 #SBATCH --mail-type=BEGIN,END,FAIL,REQUEUE,TIME_LIMIT,TIME_LIMIT_90
-#SBATCH --reservation=p_ml_nimi_105
 #SBATCH -A p_ml_nimi
 #SBATCH --array=1-1
 
